@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --background: #fffcf9; /* Very light warm cream */
+    --foreground: #2d1b14; /* Deep chocolate brown */
+    --card: #ffffff;
+    --primary: #f43f5e; /* Vibrant Tomato Red */
+    --primary-foreground: #ffffff;
+  }
+
+  body {
+    @apply bg-[#fffcf9] text-[#2d1b14] antialiased selection:bg-orange-100;
+    font-family: var(--font-quicksand), sans-serif;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-slate-400 font-medium;
+  }
+}
+
+@layer components {
+  .btn-foodie {
+    @apply bg-[#f43f5e] text-white font-bold py-4 px-8 rounded-[24px] shadow-lg shadow-rose-200 hover:bg-[#e11d48] hover:scale-[1.03] active:scale-[0.97] transition-all duration-300 flex items-center justify-center gap-2;
+  }
+
+  .card-foodie {
+    @apply bg-white rounded-[40px] p-6 border-2 border-orange-50 shadow-xl shadow-orange-100/50 hover:shadow-orange-200/50 transition-all duration-500;
+  }
+}
