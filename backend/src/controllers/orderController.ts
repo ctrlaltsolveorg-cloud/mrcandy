@@ -19,7 +19,7 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
       // Creating order without strict customerId requirement but saving it if provided
       const order = await tx.order.create({
         data: {
-          customerId, // Saving the device ID here
+          deviceTrackingId: customerId, // Saving the device ID here instead of foreign key
           totalAmount,
           customerName,
           customerPhone,
@@ -72,7 +72,7 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
 export const getOrders = async (req: AuthRequest, res: Response) => {
   try {
     const { customerId } = req.query;
-    const filter = customerId ? { customerId: String(customerId) } : {};
+    const filter = customerId ? { deviceTrackingId: String(customerId) } : {};
 
     const orders = await prisma.order.findMany({ 
       where: filter,

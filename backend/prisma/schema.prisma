@@ -50,6 +50,9 @@ model Order {
   otp           String?
   totalAmount   Float
   
+  // Anonymous tracking
+  deviceTrackingId String?
+
   // Customer Details for Order
   customerName  String?
   customerPhone String?
