@@ -10,15 +10,16 @@ interface AuthRequest extends Request {
 }
 
 export const createOrder = async (req: AuthRequest, res: Response) => {
-  const { items, totalAmount, customerName, customerPhone, address, pincode } = req.body;
+  const { items, totalAmount, customerName, customerPhone, address, pincode, customerId } = req.body;
   
   try {
     const result = await prisma.$transaction(async (tx) => {
       const otp = Math.floor(1000 + Math.random() * 9000).toString();
       
-      // Creating order without strict customerId requirement
+      // Creating order without strict customerId requirement but saving it if provided
       const order = await tx.order.create({
         data: {
+          customerId, // Saving the device ID here
           totalAmount,
           customerName,
           customerPhone,
