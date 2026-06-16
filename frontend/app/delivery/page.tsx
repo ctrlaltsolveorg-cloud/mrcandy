@@ -187,7 +187,7 @@ export default function DeliveryPanel() {
                               <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-colors ${item.isPacked ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-stone-300 bg-stone-50'}`}>
                                 {item.isPacked && <Check size={14} strokeWidth={4} />}
                               </div>
-                              <span className={`font-bold text-sm ${item.isPacked ? 'text-stone-400 line-through' : 'text-[#1C1917]'}`}>{item.product?.name}</span>
+                              <span className={`font-bold text-sm ${item.isPacked ? 'text-emerald-700' : 'text-[#1C1917]'}`}>{item.product?.name}</span>
                             </div>
                             <span className="font-black text-stone-600 text-xs px-2 py-1 bg-stone-100 rounded-lg">{item.quantity} {item.product?.unit}</span>
                           </div>

@@ -432,10 +432,10 @@ export default function UserShop() {
                                   <div className="flex-1 space-y-2 bg-stone-50 p-5 rounded-[24px] border border-stone-100">
                                       <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Items</p>
                                       {order.items.map(item => (
-                                          <div key={item.id} className={`flex justify-between items-center text-sm font-bold transition-colors ${item.isPacked ? 'text-stone-400' : 'text-[#1C1917]'}`}>
+                                          <div key={item.id} className={`flex justify-between items-center text-sm font-bold transition-colors ${item.isPacked ? 'text-emerald-700' : 'text-[#1C1917]'}`}>
                                               <span className="flex items-center gap-2">
-                                                  {item.isPacked ? <CheckCircle size={14} className="text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border-2 border-stone-300" />}
-                                                  <span className={item.isPacked ? 'line-through decoration-stone-300' : ''}>
+                                                  {item.isPacked ? <CheckCircle size={16} className="text-emerald-500" strokeWidth={2.5} /> : <div className="w-4 h-4 rounded-full border-2 border-stone-300" />}
+                                                  <span>
                                                       {item.quantity}x {item.product?.name || 'Item'}
                                                   </span>
                                               </span>
