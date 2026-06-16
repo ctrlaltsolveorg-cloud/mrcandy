@@ -176,6 +176,8 @@ export default function UserShop() {
     return <img src={fullUrl} alt="product" className="w-full h-full object-cover" />;
   };
 
+  const activeOrder = myOrders.find(o => o.status !== 'DELIVERED' && o.status !== 'CANCELLED');
+
   if (orderComplete) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
@@ -255,6 +257,42 @@ export default function UserShop() {
             </div>
         </div>
       </header>
+
+      <AnimatePresence>
+        {activeOrder && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }} 
+            animate={{ opacity: 1, height: 'auto' }} 
+            exit={{ opacity: 0, height: 0 }}
+            className="bg-white border-b-2 border-orange-50 shadow-md"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-10 py-6">
+              <div className="bg-gradient-to-r from-orange-50 to-rose-50 rounded-[32px] p-6 sm:p-8 border-2 border-white shadow-inner flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-6">
+                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-md text-[#F43F5E]">
+                    <CheckCircle size={32} strokeWidth={2.5} />
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-black text-[#1C1917] tracking-tight">
+                      {activeOrder.status === 'PENDING' ? 'Order Placed & Waiting for Rider' : 'Packing in Progress'}
+                    </h3>
+                    <p className="text-sm font-bold text-[#F43F5E] mt-1">
+                      {activeOrder.items.filter(i => i.isPacked).length} of {activeOrder.items.length} items packed
+                    </p>
+                  </div>
+                </div>
+
+                <div className="w-full md:w-auto flex flex-col items-center md:items-end">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-2">Secure Delivery OTP</p>
+                    <div className="bg-white px-8 py-3 rounded-full shadow-md border-2 border-rose-100 text-3xl font-black text-indigo-600 tracking-widest">
+                        {activeOrder.otp}
+                    </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main className="max-w-7xl mx-auto p-4 sm:p-10">
         {filteredProducts.length === 0 ? (
