@@ -42,6 +42,11 @@ io.on('connection', (socket) => {
     console.log(`Socket ${socket.id} joined user room: user_${deviceId}`);
   });
 
+  // Relay live location from Rider to User
+  socket.on('delivery_location_update', (data: { trackingId: string, lat: number, lng: number }) => {
+    io.to(`user_${data.trackingId}`).emit('rider_location', { lat: data.lat, lng: data.lng });
+  });
+
   socket.on('disconnect', () => {
     console.log('User disconnected:', socket.id);
   });

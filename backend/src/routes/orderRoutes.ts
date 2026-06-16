@@ -3,6 +3,7 @@ import {
   createOrder,
   getOrders,
   acceptOrder,
+  markOutForDelivery,
   completeOrder,
   toggleItemPacked,
 } from '../controllers/orderController';
@@ -22,6 +23,7 @@ router.post('/', (req, res, next) => {
 
 router.get('/', getOrders);
 router.post('/:id/accept', acceptOrder);
+router.post('/:id/out-for-delivery', markOutForDelivery);
 router.post('/:id/complete', completeOrder);
 router.put('/:orderId/items/:itemId/pack', toggleItemPacked);
 

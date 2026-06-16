@@ -19,6 +19,7 @@ export default function UserShop() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [showCheckoutForm, setShowCheckoutForm] = useState(false);
   const [customerDetails, setCustomerDetails] = useState({ name: '', phone: '', address: '', pincode: '' });
+  const [riderLocation, setRiderLocation] = useState<{lat: number, lng: number} | null>(null);
   
   // Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -62,6 +63,16 @@ export default function UserShop() {
           return order;
         }));
       });
+
+      socket.on('order_status_update', (updatedOrder: Order) => {
+        setMyOrders(currentOrders => currentOrders.map(order => 
+            order.id === updatedOrder.id ? updatedOrder : order
+        ));
+      });
+
+      socket.on('rider_location', (data: {lat: number, lng: number}) => {
+        setRiderLocation(data);
+      });
       
       // Poll for order updates every 5 seconds if My Orders is open (fallback)
       const interval = setInterval(() => {
@@ -73,6 +84,8 @@ export default function UserShop() {
       return () => {
         clearInterval(interval);
         socket.off('item_packed_status');
+        socket.off('order_status_update');
+        socket.off('rider_location');
       };
   }, [showMyOrders, orderComplete]);
 
@@ -187,6 +200,7 @@ export default function UserShop() {
 
     let trackingStatus = "Order Placed & Waiting for Rider";
     if (displayOrder.status === 'DELIVERED') trackingStatus = "Delivered";
+    else if (displayOrder.status === 'OUT_FOR_DELIVERY') trackingStatus = "Out for Delivery";
     else if (displayOrder.status === 'ACCEPTED') {
         if (packedItemsCount === totalItems) trackingStatus = "Ready for Delivery";
         else if (packedItemsCount > 0) trackingStatus = "Packing in Progress";
@@ -226,7 +240,7 @@ export default function UserShop() {
                         <span>Packing Progress</span>
                         <span className="text-[#F43F5E]">{packedItemsCount} / {totalItems} Packed</span>
                     </div>
-                    <div className="w-full h-4 bg-stone-50 rounded-full overflow-hidden border border-stone-200 shadow-inner">
+                    <div className="w-full h-4 bg-stone-50 rounded-full overflow-hidden border border-stone-200 shadow-inner mb-6">
                         <motion.div 
                             initial={{ width: 0 }} 
                             animate={{ width: `${progressPercentage}%` }} 
@@ -234,6 +248,34 @@ export default function UserShop() {
                             className={`h-full rounded-full ${progressPercentage === 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-[#F43F5E] to-[#FB923C]'}`} 
                         />
                     </div>
+                    
+                    {displayOrder.status === 'OUT_FOR_DELIVERY' && (
+                        <div className="bg-emerald-50 border-2 border-emerald-100 p-5 rounded-[24px] shadow-sm animate-fade-in">
+                            <p className="text-emerald-700 font-black text-sm mb-1 leading-tight">Your order will arrive in around 20-30 minutes.</p>
+                            <p className="text-emerald-600 font-bold text-xs mb-4 leading-tight">Be ready with cash or changes, or online payment will be acceptable.</p>
+                            
+                            {riderLocation ? (
+                                <div className="w-full h-32 bg-stone-100 rounded-[16px] overflow-hidden border-2 border-emerald-200 relative shadow-inner">
+                                    <iframe 
+                                        width="100%" 
+                                        height="100%" 
+                                        frameBorder="0" 
+                                        scrolling="no" 
+                                        marginHeight={0} 
+                                        marginWidth={0} 
+                                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${riderLocation.lng - 0.005},${riderLocation.lat - 0.005},${riderLocation.lng + 0.005},${riderLocation.lat + 0.005}&layer=mapnik&marker=${riderLocation.lat},${riderLocation.lng}`}
+                                    ></iframe>
+                                    <div className="absolute top-2 right-2 bg-white/80 backdrop-blur px-2 py-1 rounded-full text-[8px] font-black tracking-widest uppercase shadow-sm border border-stone-100 text-stone-600 flex items-center gap-1">
+                                        <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" /> Live Map
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="w-full h-12 bg-emerald-100/50 rounded-[16px] flex items-center justify-center border-2 border-dashed border-emerald-200 text-emerald-600/50 text-xs font-black uppercase tracking-widest">
+                                    Waiting for Rider GPS...
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
                 )}
             </div>

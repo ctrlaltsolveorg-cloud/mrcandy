@@ -121,6 +121,34 @@ export const acceptOrder = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const markOutForDelivery = async (req: AuthRequest, res: Response) => {
+  const { id } = req.params;
+
+  try {
+    const updatedOrder = await prisma.order.update({
+      where: { id },
+      data: {
+        status: 'OUT_FOR_DELIVERY',
+      },
+      include: {
+        items: { include: { product: true } },
+        customer: true,
+        deliveryBoy: true
+      }
+    });
+
+    // Notify user that order is out for delivery
+    if (updatedOrder.deviceTrackingId) {
+      io.to(`user_${updatedOrder.deviceTrackingId}`).emit('order_status_update', updatedOrder);
+    }
+
+    res.json(updatedOrder);
+  } catch (error: any) {
+    console.error('Out for delivery failed:', error.message);
+    res.status(500).json({ message: 'Failed to update order status', error: error.message });
+  }
+};
+
 export const completeOrder = async (req: AuthRequest, res: Response) => {
   const { id } = req.params;
   const { otp } = req.body;

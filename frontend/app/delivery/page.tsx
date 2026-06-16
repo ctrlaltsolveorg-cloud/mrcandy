@@ -35,6 +35,27 @@ export default function DeliveryPanel() {
     catch (error) { toast.error('Order already taken!'); setIncomingOrder(null); }
   };
 
+  const markOutForDelivery = async (id: string) => {
+    try {
+        await api.post(`/orders/${id}/out-for-delivery`);
+        toast.success('Marked Out for Delivery!');
+        fetchOrders();
+
+        if ("geolocation" in navigator) {
+            navigator.geolocation.watchPosition((position) => {
+                socket.emit('delivery_location_update', {
+                    trackingId: orders.find(o => o.id === id)?.deviceTrackingId || '',
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                });
+            }, (error) => {
+                console.error("GPS Error:", error);
+                toast.error("Please enable GPS for live tracking.");
+            }, { enableHighAccuracy: true });
+        }
+    } catch (error) { toast.error('Failed to update status'); }
+  };
+
   const completeOrder = async (id: string) => {
     try { await api.post(`/orders/${id}/complete`, { otp }); toast.success('Delivery Successful!'); setShowOtpModal(null); setOtp(''); fetchOrders(); } 
     catch (error) { toast.error('Incorrect OTP!'); }
@@ -155,14 +176,23 @@ export default function DeliveryPanel() {
                   )}
 
                   {order.status === 'ACCEPTED' && (
-                    <button onClick={() => setShowOtpModal(order.id)} disabled={order.items.some(item => !item.isPacked)} className={`w-full py-4 text-sm rounded-[24px] shadow-stone-300 flex items-center justify-center group/btn relative overflow-hidden transition-all ${order.items.some(item => !item.isPacked) ? 'bg-stone-100 text-stone-400 cursor-not-allowed border-2 border-stone-200 shadow-none' : 'btn-dark'}`}>
+                    <button onClick={() => markOutForDelivery(order.id)} disabled={order.items.some(item => !item.isPacked)} className={`w-full py-4 text-sm rounded-[24px] shadow-stone-300 flex items-center justify-center group/btn relative overflow-hidden transition-all ${order.items.some(item => !item.isPacked) ? 'bg-stone-100 text-stone-400 cursor-not-allowed border-2 border-stone-200 shadow-none' : 'btn-dark'}`}>
                         <span className="relative z-10 flex items-center gap-2">
-                            {order.items.some(item => !item.isPacked) ? 'PACK ALL ITEMS FIRST' : 'VERIFY DELIVERY'} 
-                            <Lock size={16} strokeWidth={3} />
+                            {order.items.some(item => !item.isPacked) ? 'PACK ALL ITEMS FIRST' : 'START DELIVERY (GPS)'} 
+                            <Navigation size={16} strokeWidth={3} />
                         </span>
                         {!order.items.some(item => !item.isPacked) && (
                             <div className="absolute inset-0 bg-[#F43F5E] translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
                         )}
+                    </button>
+                  )}
+
+                  {order.status === 'OUT_FOR_DELIVERY' && (
+                    <button onClick={() => setShowOtpModal(order.id)} className="w-full btn-premium py-4 text-sm rounded-[24px] shadow-rose-200 flex items-center justify-center group/btn relative overflow-hidden">
+                        <span className="relative z-10 flex items-center gap-2">
+                            VERIFY DELIVERY 
+                            <Lock size={16} strokeWidth={3} />
+                        </span>
                     </button>
                   )}
                 </motion.div>

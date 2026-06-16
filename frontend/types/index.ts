@@ -33,9 +33,10 @@ export interface Order {
   customer: User | null;
   deliveryBoyId: string | null;
   deliveryBoy: User | null;
-  status: 'PENDING' | 'ACCEPTED' | 'DELIVERED' | 'CANCELLED';
+  status: 'PENDING' | 'ACCEPTED' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'CANCELLED';
   otp: string | null;
   totalAmount: number;
+  deviceTrackingId: string | null;
   customerName: string | null;
   customerPhone: string | null;
   address: string | null;
