@@ -196,6 +196,18 @@ export default function DeliveryPanel() {
                     </div>
                   )}
 
+                  {order.status === 'PENDING' && (
+                    <button 
+                      onClick={() => acceptOrder(order.id)} 
+                      className="w-full btn-premium py-6 text-xl rounded-[32px] shadow-rose-200 flex items-center justify-center group/btn relative overflow-hidden"
+                    >
+                        <span className="relative z-10 flex items-center gap-3">
+                            CLAIM ORDER 
+                            <Check size={20} strokeWidth={3} />
+                        </span>
+                    </button>
+                  )}
+
                   {order.status === 'ACCEPTED' && (
                     <button 
                       onClick={() => setShowOtpModal(order.id)} 
