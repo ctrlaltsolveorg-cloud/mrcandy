@@ -264,28 +264,52 @@ export default function UserShop() {
             initial={{ opacity: 0, height: 0 }} 
             animate={{ opacity: 1, height: 'auto' }} 
             exit={{ opacity: 0, height: 0 }}
-            className="bg-white border-b-2 border-orange-50 shadow-md"
+            className="bg-white border-b-2 border-orange-50 shadow-md overflow-hidden"
           >
             <div className="max-w-7xl mx-auto px-4 sm:px-10 py-6">
-              <div className="bg-gradient-to-r from-orange-50 to-rose-50 rounded-[32px] p-6 sm:p-8 border-2 border-white shadow-inner flex flex-col md:flex-row items-center justify-between gap-6">
-                <div className="flex items-center gap-6">
-                  <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-md text-[#F43F5E]">
-                    <CheckCircle size={32} strokeWidth={2.5} />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-black text-[#1C1917] tracking-tight">
-                      {activeOrder.status === 'PENDING' ? 'Order Placed & Waiting for Rider' : 'Packing in Progress'}
-                    </h3>
-                    <p className="text-sm font-bold text-[#F43F5E] mt-1">
-                      {activeOrder.items.filter(i => i.isPacked).length} of {activeOrder.items.length} items packed
-                    </p>
-                  </div>
-                </div>
+              <div className="bg-gradient-to-r from-orange-50 to-rose-50 rounded-[32px] p-6 sm:p-8 border-2 border-white shadow-inner flex flex-col gap-6">
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div className="flex items-center gap-6">
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-md text-[#F43F5E] flex-shrink-0">
+                        <CheckCircle size={32} strokeWidth={2.5} />
+                    </div>
+                    <div>
+                        <h3 className="text-2xl font-black text-[#1C1917] tracking-tight">
+                        {activeOrder.status === 'PENDING' ? 'Order Placed & Waiting for Rider' : 'Packing in Progress'}
+                        </h3>
+                        <p className="text-sm font-bold text-[#F43F5E] mt-1">
+                        {activeOrder.items.filter(i => i.isPacked).length} of {activeOrder.items.length} items packed
+                        </p>
+                    </div>
+                    </div>
 
-                <div className="w-full md:w-auto flex flex-col items-center md:items-end">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-2">Secure Delivery OTP</p>
-                    <div className="bg-white px-8 py-3 rounded-full shadow-md border-2 border-rose-100 text-3xl font-black text-indigo-600 tracking-widest">
-                        {activeOrder.otp}
+                    <div className="w-full md:w-auto flex flex-col items-start md:items-end bg-white/50 p-4 rounded-2xl md:bg-transparent md:p-0">
+                        <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-2">Secure Delivery OTP</p>
+                        <div className="bg-white px-8 py-3 rounded-full shadow-md border-2 border-rose-100 text-3xl font-black text-indigo-600 tracking-widest">
+                            {activeOrder.otp}
+                        </div>
+                    </div>
+                </div>
+                
+                {/* Active Packing Checklist */}
+                <div className="bg-white/60 p-5 rounded-[24px] border border-white shadow-sm mt-2">
+                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3">Item Checklist</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {activeOrder.items.map(item => (
+                            <div key={item.id} className={`flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border transition-colors ${item.isPacked ? 'border-emerald-100' : 'border-stone-100'}`}>
+                                {item.isPacked ? (
+                                    <CheckCircle size={18} className="text-emerald-500 flex-shrink-0" strokeWidth={2.5} />
+                                ) : (
+                                    <div className="w-4 h-4 rounded-full border-2 border-stone-300 flex-shrink-0" />
+                                )}
+                                <div className="flex-1 min-w-0">
+                                    <p className={`font-bold text-sm truncate ${item.isPacked ? 'text-emerald-700' : 'text-[#1C1917]'}`}>
+                                        {item.product?.name || 'Item'}
+                                    </p>
+                                    <p className="text-[10px] font-black text-stone-400 uppercase tracking-wider">{item.quantity} {item.product?.unit}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
                 </div>
               </div>
