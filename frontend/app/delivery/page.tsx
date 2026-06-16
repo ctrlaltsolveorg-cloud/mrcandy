@@ -49,9 +49,9 @@ export default function DeliveryPanel() {
                     lng: position.coords.longitude
                 });
             }, (error) => {
-                console.error("GPS Error:", error);
-                toast.error("Please enable GPS for live tracking.");
-            }, { enableHighAccuracy: true });
+                console.warn("GPS Warning (Location unavailable):", error.message);
+                toast.error("Live tracking paused: GPS signal weak or denied.");
+            }, { enableHighAccuracy: false, timeout: 10000 }); // Relaxed accuracy for better fallback
         }
     } catch (error) { toast.error('Failed to update status'); }
   };
