@@ -348,7 +348,7 @@ export default function UserShop() {
                         <h3 className="text-2xl font-black text-[#1C1917] tracking-tight">
                         {activeOrder.status === 'PENDING' ? 'Order Placed & Waiting for Rider' : 'Packing in Progress'}
                         </h3>
-                        <p className="text-sm font-bold text-[#F43F5E] mt-1">
+                        <p className="text-sm font-bold text-stone-600 mt-1">
                         {activeOrder.items.filter(i => i.isPacked).length} of {activeOrder.items.length} items packed
                         </p>
                     </div>
