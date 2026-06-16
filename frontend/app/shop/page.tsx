@@ -382,17 +382,52 @@ export default function UserShop() {
                           <p className="text-2xl font-black text-stone-300 uppercase tracking-widest">No Recent Orders</p>
                       </div>
                   ) : (
-                      myOrders.map(order => (
+                      myOrders.map(order => {
+                          const packedItemsCount = order.items.filter(item => item.isPacked).length;
+                          const totalItems = order.items.length;
+                          const progressPercentage = totalItems > 0 ? (packedItemsCount / totalItems) * 100 : 0;
+                          
+                          let trackingStatus = "Order Placed";
+                          if (order.status === 'DELIVERED') trackingStatus = "Delivered";
+                          else if (order.status === 'ACCEPTED') {
+                              if (packedItemsCount === totalItems) trackingStatus = "Ready for Delivery";
+                              else if (packedItemsCount > 0) trackingStatus = "Packing in Progress";
+                              else trackingStatus = "Rider Assigned";
+                          }
+
+                          return (
                           <div key={order.id} className="bg-white p-6 sm:p-8 rounded-[40px] shadow-lg shadow-orange-100/40 border-2 border-orange-50 relative overflow-hidden group">
                               <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6 relative z-10">
-                                  <div className="flex items-center gap-4">
-                                      <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 ${order.status === 'DELIVERED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
-                                          {order.status}
-                                      </span>
-                                      <p className="text-xs font-bold text-stone-400">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                  <div className="flex flex-col gap-2">
+                                      <div className="flex items-center gap-4">
+                                          <span className={`px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border-2 ${order.status === 'DELIVERED' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-amber-50 text-amber-600 border-amber-100'}`}>
+                                              {order.status}
+                                          </span>
+                                          <p className="text-xs font-bold text-stone-400">{new Date(order.createdAt).toLocaleDateString()}</p>
+                                      </div>
+                                      <p className="font-black text-[#F43F5E] text-lg tracking-tight">{trackingStatus}</p>
                                   </div>
                                   <p className="text-3xl font-black text-[#1C1917]">₹{order.totalAmount}</p>
                               </div>
+                              
+                              {/* Tracking Progress Bar */}
+                              {order.status !== 'DELIVERED' && (
+                                <div className="mb-6 relative z-10">
+                                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-stone-400 mb-2">
+                                        <span>Packing Progress</span>
+                                        <span>{packedItemsCount} / {totalItems} Packed</span>
+                                    </div>
+                                    <div className="w-full h-3 bg-stone-100 rounded-full overflow-hidden border border-stone-200 shadow-inner">
+                                        <motion.div 
+                                            initial={{ width: 0 }} 
+                                            animate={{ width: `${progressPercentage}%` }} 
+                                            transition={{ duration: 0.5 }}
+                                            className={`h-full rounded-full ${progressPercentage === 100 ? 'bg-emerald-500' : 'bg-[#FB923C]'}`} 
+                                        />
+                                    </div>
+                                </div>
+                              )}
+
                               <div className="flex flex-col sm:flex-row gap-6 relative z-10">
                                   <div className="flex-1 space-y-2 bg-stone-50 p-5 rounded-[24px] border border-stone-100">
                                       <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Items</p>
@@ -416,7 +451,8 @@ export default function UserShop() {
                                   )}
                               </div>
                           </div>
-                      ))
+                      );
+                    })
                   )}
               </div>
             </motion.div>
