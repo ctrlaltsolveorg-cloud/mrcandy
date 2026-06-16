@@ -389,36 +389,35 @@ export default function UserShop() {
         )}
       </AnimatePresence>
 
-      <main className="max-w-7xl mx-auto p-4 sm:p-10">
+      <main className="max-w-7xl mx-auto p-3 sm:p-6 lg:p-8">
         {filteredProducts.length === 0 ? (
-            <div className="text-center py-20 bg-white rounded-[40px] border-4 border-dashed border-orange-50/50">
-                <div className="w-24 h-24 bg-stone-50 rounded-[30px] flex items-center justify-center mx-auto mb-6">
-                    <Search size={40} className="text-stone-200" />
+            <div className="text-center py-20 bg-white rounded-[32px] border-2 border-dashed border-orange-50/50">
+                <div className="w-20 h-20 bg-stone-50 rounded-[24px] flex items-center justify-center mx-auto mb-4">
+                    <Search size={32} className="text-stone-300" />
                 </div>
-                <h3 className="text-2xl font-black text-stone-300 uppercase tracking-widest">No Matches Found</h3>
-                <p className="text-stone-400 font-bold mt-2">Try searching something else!</p>
+                <h3 className="text-xl font-black text-stone-400 uppercase tracking-widest">No Matches Found</h3>
             </div>
         ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-12">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-6">
                 {filteredProducts.map((product) => (
-                <motion.div layout initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} key={product.id} className="bg-white rounded-[50px] p-4 sm:p-7 shadow-[0_20px_50px_-20px_rgba(28,25,23,0.08)] border-4 border-white hover:border-orange-50 transition-all duration-500 flex flex-col group h-[320px] sm:h-[550px]">
-                    <div onClick={() => setSelectedProduct(product)} className="aspect-square bg-[#FFFBF7] rounded-[36px] mb-4 sm:mb-8 overflow-hidden flex items-center justify-center relative cursor-pointer shadow-inner">
-                    <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.6 }} className="w-full h-full p-4">
+                <motion.div layout initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} key={product.id} className="bg-white rounded-[24px] sm:rounded-[32px] p-3 sm:p-5 shadow-lg shadow-orange-100/30 border-2 border-white hover:border-orange-50 transition-all duration-300 flex flex-col group h-[260px] sm:h-[380px]">
+                    <div onClick={() => setSelectedProduct(product)} className="aspect-square bg-[#FFFBF7] rounded-[16px] sm:rounded-[24px] mb-3 sm:mb-4 overflow-hidden flex items-center justify-center relative cursor-pointer shadow-inner">
+                    <motion.div whileHover={{ scale: 1.1 }} transition={{ duration: 0.6 }} className="w-full h-full p-2 sm:p-4">
                         {renderPhoto(product.photoUrl)}
                     </motion.div>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors duration-500" />
                     </div>
-                    <h3 onClick={() => setSelectedProduct(product)} className="font-black text-[#1C1917] text-lg sm:text-3xl mb-1 sm:mb-3 px-1 tracking-tight line-clamp-2 cursor-pointer h-12 sm:h-20 leading-tight group-hover:text-[#F43F5E] transition-colors">{product.name}</h3>
-                    <div className="flex justify-between items-center mb-4 sm:mb-10 px-1 mt-auto">
+                    <h3 onClick={() => setSelectedProduct(product)} className="font-black text-[#1C1917] text-sm sm:text-lg mb-1 sm:mb-2 px-1 tracking-tight line-clamp-2 cursor-pointer h-10 sm:h-14 leading-tight group-hover:text-[#F43F5E] transition-colors">{product.name}</h3>
+                    <div className="flex justify-between items-center mb-3 sm:mb-6 px-1 mt-auto">
                         <div>
-                            <p className="text-2xl sm:text-4xl font-black text-[#1C1917]">₹{product.price}</p>
-                            <p className="text-[10px] sm:text-xs font-black text-stone-400 uppercase tracking-widest">{product.unit}</p>
+                            <p className="text-lg sm:text-2xl font-black text-[#1C1917]">₹{product.price}</p>
+                            <p className="text-[8px] sm:text-[10px] font-black text-stone-400 uppercase tracking-widest">{product.unit}</p>
                         </div>
-                        <div className={`px-3 sm:px-5 py-1.5 sm:py-2 rounded-full text-[8px] sm:text-xs font-black tracking-widest border-2 ${product.retailStock > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
+                        <div className={`px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[7px] sm:text-[9px] font-black tracking-widest border ${product.retailStock > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-rose-50 text-rose-600 border-rose-100'}`}>
                             {product.retailStock > 0 ? `${product.retailStock} IN STOCK` : 'SOLD OUT'}
                         </div>
                     </div>
-                    <button onClick={() => addToCart(product)} disabled={product.retailStock <= 0} className={`w-full py-4 sm:py-6 rounded-[24px] sm:rounded-[32px] font-black text-xs sm:text-xl transition-all active:scale-95 shadow-xl ${product.retailStock > 0 ? 'bg-[#1C1917] text-white hover:bg-[#F43F5E] shadow-stone-200' : 'bg-stone-50 text-stone-300 cursor-not-allowed shadow-none'}`}>
+                    <button onClick={() => addToCart(product)} disabled={product.retailStock <= 0} className={`w-full py-2.5 sm:py-4 rounded-[16px] sm:rounded-[20px] font-black text-xs sm:text-sm transition-all active:scale-95 shadow-md ${product.retailStock > 0 ? 'bg-[#1C1917] text-white hover:bg-[#F43F5E] shadow-stone-200' : 'bg-stone-50 text-stone-300 cursor-not-allowed shadow-none'}`}>
                     {product.retailStock > 0 ? 'ADD TO BAG' : 'OUT'}
                     </button>
                 </motion.div>

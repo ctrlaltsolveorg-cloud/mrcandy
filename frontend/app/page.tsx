@@ -33,21 +33,21 @@ export default function Home() {
       <motion.div 
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
-        className="text-center mb-20 relative z-10"
+        className="text-center mb-12 relative z-10"
       >
         <motion.div 
             whileHover={{ scale: 1.05 }}
-            className="inline-flex items-center gap-2 bg-white px-6 py-2.5 rounded-full text-xs font-black tracking-[0.2em] uppercase text-rose-500 border-2 border-rose-50 shadow-xl shadow-rose-100/20 mb-8 cursor-default"
+            className="inline-flex items-center gap-2 bg-white px-5 py-2 rounded-full text-[10px] font-black tracking-[0.2em] uppercase text-rose-500 border-2 border-rose-50 shadow-lg shadow-rose-100/20 mb-6 cursor-default"
         >
-          <Sparkles size={16} className="animate-spin-slow" /> Luxury Mart System
+          <Sparkles size={14} className="animate-spin-slow" /> Luxury Mart System
         </motion.div>
         
-        <h1 className="text-8xl sm:text-9xl font-black text-[#1C1917] mb-6 tracking-[-0.04em] leading-[0.85] flex flex-col items-center">
+        <h1 className="text-6xl sm:text-7xl font-black text-[#1C1917] mb-4 tracking-[-0.04em] leading-[0.85] flex flex-col items-center">
           <span className="relative">
             MR.
             <motion.div 
                 initial={{ width: 0 }} animate={{ width: '100%' }} transition={{ delay: 0.5, duration: 0.8 }}
-                className="absolute -bottom-2 left-0 h-4 bg-rose-500/10 -rotate-1" 
+                className="absolute -bottom-1 left-0 h-2 bg-rose-500/10 -rotate-1" 
             />
           </span>
           <span className="bg-gradient-to-r from-[#F43F5E] via-[#FB923C] to-[#F43F5E] bg-clip-text text-transparent animate-gradient-x py-2">
@@ -55,37 +55,32 @@ export default function Home() {
           </span>
         </h1>
         
-        <p className="text-[#78716C] text-xl sm:text-2xl font-bold max-w-2xl mx-auto leading-relaxed mt-4">
+        <p className="text-[#78716C] text-lg sm:text-xl font-bold max-w-xl mx-auto leading-relaxed mt-2">
             Elevating your <span className="text-[#1C1917] underline decoration-rose-200 decoration-4 underline-offset-4">grocery management</span> experience with world-class aesthetics.
         </p>
       </motion.div>
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full max-w-5xl relative z-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-6xl relative z-10">
         {cards.map((card, idx) => (
           <motion.button 
             key={idx}
-            initial={{ opacity: 0, x: idx % 2 === 0 ? -40 : 40 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.1, type: 'spring', stiffness: 80 }}
-            whileHover={{ scale: 1.03, y: -10 }}
+            whileHover={{ scale: 1.03, y: -5 }}
             whileTap={{ scale: 0.97 }}
             onClick={() => router.push(card.path)}
-            className="group bg-white p-10 rounded-[56px] shadow-[0_30px_70px_-20px_rgba(28,25,23,0.1)] border-4 border-white hover:border-orange-50 flex items-center justify-between gap-8 transition-all duration-500 text-left"
+            className="group bg-white p-6 rounded-[32px] shadow-lg shadow-orange-100/30 border-2 border-white hover:border-orange-50 flex flex-col items-center justify-center gap-4 transition-all duration-300 text-center"
           >
-            <div className="flex items-center gap-8">
-                <div className={`w-24 h-24 rounded-[36px] ${card.bg} flex items-center justify-center shadow-inner relative group-hover:rotate-6 transition-all duration-500`}>
-                    <div className={`absolute inset-0 rounded-[36px] bg-gradient-to-br ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                    <div className={`${card.accent} group-hover:text-white p-4 rounded-2xl relative z-10 transition-colors duration-500`}>
-                        <card.icon size={44} strokeWidth={2.5} />
-                    </div>
-                </div>
-                <div>
-                    <h2 className="text-3xl font-black text-[#1C1917] mb-1 tracking-tight">{card.title}</h2>
-                    <p className="text-[#78716C] font-bold text-base uppercase tracking-widest leading-none opacity-60 group-hover:opacity-100 transition-opacity">{card.desc}</p>
+            <div className={`w-20 h-20 rounded-[28px] ${card.bg} flex items-center justify-center shadow-inner relative group-hover:rotate-6 transition-all duration-500`}>
+                <div className={`absolute inset-0 rounded-[28px] bg-gradient-to-br ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                <div className={`${card.accent} group-hover:text-white relative z-10 transition-colors duration-500`}>
+                    <card.icon size={36} strokeWidth={2.5} />
                 </div>
             </div>
-            <div className="w-14 h-14 rounded-full bg-stone-50 flex items-center justify-center text-stone-300 group-hover:bg-[#1C1917] group-hover:text-white transition-all duration-500 translate-x-4 opacity-0 group-hover:opacity-100 group-hover:translate-x-0">
-                <ArrowRight size={24} strokeWidth={3} />
+            <div>
+                <h2 className="text-xl font-black text-[#1C1917] mb-1 tracking-tight">{card.title}</h2>
+                <p className="text-[#78716C] font-bold text-xs uppercase tracking-widest opacity-60 group-hover:opacity-100 transition-opacity">{card.desc}</p>
             </div>
           </motion.button>
         ))}
