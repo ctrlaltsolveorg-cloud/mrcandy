@@ -199,9 +199,11 @@ export default function UserShop() {
       <header className="bg-white/70 backdrop-blur-2xl sticky top-0 z-40 border-b border-orange-100/50">
         <div className="max-w-7xl mx-auto px-6 py-6 flex justify-between items-center gap-4">
             <div className="flex items-center gap-4 sm:gap-6 flex-1 min-w-0">
-                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setShowMenu(true)} className="p-3 sm:p-4 bg-stone-100 text-stone-600 rounded-[20px] sm:rounded-[24px] hover:bg-[#1C1917] hover:text-white transition-all shadow-inner shrink-0">
+                {/* Mobile Hamburger Menu */}
+                <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} onClick={() => setShowMenu(true)} className="lg:hidden p-3 sm:p-4 bg-stone-100 text-stone-600 rounded-[20px] sm:rounded-[24px] hover:bg-[#1C1917] hover:text-white transition-all shadow-inner shrink-0">
                     <Menu size={22} strokeWidth={2.5} />
                 </motion.button>
+                
                 <div className="hidden sm:block shrink-0">
                     <h1 className="text-3xl font-black text-[#1C1917] tracking-tighter">MR. <span className="text-[#F43F5E]">CANDY</span></h1>
                     <div className="flex items-center gap-2">
@@ -210,8 +212,21 @@ export default function UserShop() {
                     </div>
                 </div>
 
+                {/* Desktop Tab Bar Navigation */}
+                <div className="hidden lg:flex items-center gap-2 bg-stone-50 p-1.5 rounded-full border border-stone-200 ml-4 shrink-0">
+                  <button onClick={() => router.push('/')} className="px-5 py-2.5 rounded-full text-sm font-black text-stone-600 hover:text-[#1C1917] hover:bg-white hover:shadow-sm transition-all flex items-center gap-2">
+                    <Home size={16} /> Home
+                  </button>
+                  <button onClick={() => setShowMyOrders(true)} className="px-5 py-2.5 rounded-full text-sm font-black text-stone-600 hover:text-[#1C1917] hover:bg-white hover:shadow-sm transition-all flex items-center gap-2">
+                    <Clock size={16} /> My Orders
+                  </button>
+                  <button className="px-5 py-2.5 rounded-full text-sm font-black text-stone-400 cursor-not-allowed flex items-center gap-2">
+                    <Tag size={16} /> Price Range <span className="bg-emerald-100 text-emerald-600 px-1.5 py-0.5 rounded text-[8px] uppercase tracking-widest ml-1">Soon</span>
+                  </button>
+                </div>
+
                 {/* Smart Search Bar */}
-                <div className="relative flex-1 max-w-xl">
+                <div className="relative flex-1 max-w-xl ml-auto">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
                     <input 
                         type="text" 
