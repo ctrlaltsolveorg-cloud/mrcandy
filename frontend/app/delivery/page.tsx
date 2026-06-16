@@ -37,30 +37,50 @@ export default function DeliveryPanel() {
   };
 
   const startGpsTracking = (id: string, trackingId: string) => {
-      if ("geolocation" in navigator) {
-          navigator.geolocation.watchPosition((position) => {
-              // Clear error if successful
-              setGpsErrors(prev => ({ ...prev, [id]: false }));
-              socket.emit('delivery_location_update', {
-                  trackingId: trackingId,
-                  lat: position.coords.latitude,
-                  lng: position.coords.longitude
-              });
-          }, (error) => {
-              console.warn("GPS Warning:", error.message);
-              setGpsErrors(prev => ({ ...prev, [id]: true }));
-              
-              if (error.code === 1) {
-                  toast.error("Permission Denied: Please allow location access in browser settings.");
-              } else if (error.code === 2) {
-                  toast.error("OS Error: Your Mac/Device cannot determine its location right now.");
-              } else {
-                  toast.error("GPS Timeout: Signal is too weak.");
-              }
-          }, { enableHighAccuracy: false, timeout: 10000 }); 
-      } else {
+      if (!("geolocation" in navigator)) {
           toast.error("Geolocation is not supported by your browser.");
+          return;
       }
+
+      const sendLocation = (position: GeolocationPosition) => {
+          setGpsErrors(prev => ({ ...prev, [id]: false }));
+          socket.emit('delivery_location_update', {
+              trackingId: trackingId,
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+          });
+      };
+
+      const handleError = (error: GeolocationPositionError) => {
+          console.warn("GPS Watch Warning:", error.message);
+          
+          // If watchPosition fails, try a one-time aggressive fetch as fallback
+          navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                  toast.success("Using fallback location method.");
+                  sendLocation(pos);
+                  // Setup a manual interval to simulate watching if native watching is broken on this device
+                  const manualWatch = setInterval(() => {
+                      navigator.geolocation.getCurrentPosition(sendLocation, () => {}, { maximumAge: 0, timeout: 5000, enableHighAccuracy: false });
+                  }, 5000);
+                  // Quick hack to attach interval to window so we don't memory leak terribly, though a ref is better in prod
+                  (window as any).fallbackGpsInterval = manualWatch;
+              },
+              (err) => {
+                  console.error("Total GPS Failure:", err);
+                  setGpsErrors(prev => ({ ...prev, [id]: true }));
+                  toast.error("Could not fetch location. Please check OS permissions.");
+              },
+              { enableHighAccuracy: false, timeout: 30000, maximumAge: Infinity }
+          );
+      };
+
+      // Primary attempt: Relaxed watchPosition
+      navigator.geolocation.watchPosition(
+          sendLocation,
+          handleError,
+          { enableHighAccuracy: false, timeout: 20000, maximumAge: 10000 }
+      );
   };
 
   const simulateGps = (id: string, trackingId: string) => {
