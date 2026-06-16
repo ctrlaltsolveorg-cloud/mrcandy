@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import socket from '@/lib/socket';
 import { Order } from '@/types';
-import { Check, X, MapPin, Phone, Package, Lock, Home, Navigation, Bell } from 'lucide-react';
+import { Check, X, MapPin, Phone, Package, Lock, Home, Navigation, Bell, MapPinOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -15,6 +15,7 @@ export default function DeliveryPanel() {
   const [incomingOrder, setIncomingOrder] = useState<Order | null>(null);
   const [showOtpModal, setShowOtpModal] = useState<string | null>(null);
   const [otp, setOtp] = useState('');
+  const [gpsErrors, setGpsErrors] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchOrders();
@@ -35,24 +36,34 @@ export default function DeliveryPanel() {
     catch (error) { toast.error('Order already taken!'); setIncomingOrder(null); }
   };
 
+  const startGpsTracking = (id: string, trackingId: string) => {
+      if ("geolocation" in navigator) {
+          navigator.geolocation.watchPosition((position) => {
+              // Clear error if successful
+              setGpsErrors(prev => ({ ...prev, [id]: false }));
+              socket.emit('delivery_location_update', {
+                  trackingId: trackingId,
+                  lat: position.coords.latitude,
+                  lng: position.coords.longitude
+              });
+          }, (error) => {
+              console.warn("GPS Warning (Location unavailable):", error.message);
+              setGpsErrors(prev => ({ ...prev, [id]: true }));
+              toast.error("Live tracking paused. Please allow location access.");
+          }, { enableHighAccuracy: false, timeout: 10000 }); 
+      } else {
+          toast.error("Geolocation is not supported by your browser.");
+      }
+  };
+
   const markOutForDelivery = async (id: string) => {
     try {
         await api.post(`/orders/${id}/out-for-delivery`);
         toast.success('Marked Out for Delivery!');
         fetchOrders();
-
-        if ("geolocation" in navigator) {
-            navigator.geolocation.watchPosition((position) => {
-                socket.emit('delivery_location_update', {
-                    trackingId: orders.find(o => o.id === id)?.deviceTrackingId || '',
-                    lat: position.coords.latitude,
-                    lng: position.coords.longitude
-                });
-            }, (error) => {
-                console.warn("GPS Warning (Location unavailable):", error.message);
-                toast.error("Live tracking paused: GPS signal weak or denied.");
-            }, { enableHighAccuracy: false, timeout: 10000 }); // Relaxed accuracy for better fallback
-        }
+        
+        const trackingId = orders.find(o => o.id === id)?.deviceTrackingId || '';
+        startGpsTracking(id, trackingId);
     } catch (error) { toast.error('Failed to update status'); }
   };
 
@@ -188,12 +199,24 @@ export default function DeliveryPanel() {
                   )}
 
                   {order.status === 'OUT_FOR_DELIVERY' && (
-                    <button onClick={() => setShowOtpModal(order.id)} className="w-full btn-premium py-4 text-sm rounded-[24px] shadow-rose-200 flex items-center justify-center group/btn relative overflow-hidden">
-                        <span className="relative z-10 flex items-center gap-2">
-                            VERIFY DELIVERY 
-                            <Lock size={16} strokeWidth={3} />
-                        </span>
-                    </button>
+                    <div className="flex flex-col gap-3">
+                        <button onClick={() => setShowOtpModal(order.id)} className="w-full btn-premium py-4 text-sm rounded-[24px] shadow-rose-200 flex items-center justify-center group/btn relative overflow-hidden">
+                            <span className="relative z-10 flex items-center gap-2">
+                                VERIFY DELIVERY 
+                                <Lock size={16} strokeWidth={3} />
+                            </span>
+                        </button>
+                        
+                        {/* GPS Retry Button if Location Fails */}
+                        {gpsErrors[order.id] && (
+                            <button 
+                                onClick={() => startGpsTracking(order.id, order.deviceTrackingId || '')} 
+                                className="w-full py-3 bg-amber-50 text-amber-600 border border-amber-200 rounded-[20px] text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-100 transition-colors"
+                            >
+                                <MapPinOff size={14} /> Retry Location Access
+                            </button>
+                        )}
+                    </div>
                   )}
                 </motion.div>
               ))
