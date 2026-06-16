@@ -179,19 +179,90 @@ export default function UserShop() {
   const activeOrder = myOrders.find(o => o.status !== 'DELIVERED' && o.status !== 'CANCELLED');
 
   if (orderComplete) {
+    // For real-time updates on the completion screen, we use the activeOrder if it matches
+    const displayOrder = activeOrder?.id === orderComplete.id ? activeOrder : orderComplete;
+    const packedItemsCount = displayOrder.items?.filter(item => item.isPacked).length || 0;
+    const totalItems = displayOrder.items?.length || 0;
+    const progressPercentage = totalItems > 0 ? (packedItemsCount / totalItems) * 100 : 0;
+
+    let trackingStatus = "Order Placed & Waiting for Rider";
+    if (displayOrder.status === 'DELIVERED') trackingStatus = "Delivered";
+    else if (displayOrder.status === 'ACCEPTED') {
+        if (packedItemsCount === totalItems) trackingStatus = "Ready for Delivery";
+        else if (packedItemsCount > 0) trackingStatus = "Packing in Progress";
+        else trackingStatus = "Rider Assigned";
+    }
+
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center">
-        <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-32 h-32 bg-emerald-50 text-emerald-500 rounded-[40px] flex items-center justify-center mb-10 shadow-inner">
-          <CheckCircle size={64} strokeWidth={1.5} />
-        </motion.div>
-        <h1 className="text-5xl font-black text-[#1C1917] mb-4 tracking-tighter">Order Placed!</h1>
-        <p className="text-[#78716C] text-xl font-bold mb-12">Show this OTP to the delivery partner:</p>
-        <div className="bg-gradient-to-br from-[#F43F5E] to-[#FB923C] rounded-[50px] p-16 mb-16 shadow-2xl shadow-rose-200 relative overflow-hidden group">
-            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-            <span className="text-xs uppercase font-black text-white/60 block mb-4 tracking-[0.4em]">Delivery OTP</span>
-            <span className="text-9xl font-black text-white tracking-widest leading-none drop-shadow-2xl">{orderComplete.otp}</span>
+      <div className="min-h-screen bg-[#FFFBF7] flex flex-col items-center p-4 sm:p-10">
+        <div className="w-full max-w-3xl bg-white rounded-[50px] shadow-2xl shadow-orange-100/50 border-4 border-white overflow-hidden flex flex-col mt-10">
+            <div className="p-8 sm:p-12 text-center bg-gradient-to-b from-emerald-50 to-white">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} className="w-24 h-24 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border-4 border-white">
+                <CheckCircle size={48} strokeWidth={2.5} />
+                </motion.div>
+                <h1 className="text-4xl font-black text-[#1C1917] mb-2 tracking-tighter">Order Confirmed!</h1>
+                <p className="text-[#F43F5E] font-black text-xl tracking-tight">{trackingStatus}</p>
+            </div>
+
+            <div className="px-8 sm:px-12 py-6 border-b-2 border-stone-50 flex flex-col md:flex-row justify-between items-center gap-6 bg-white">
+                <div className="w-full md:w-auto">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-stone-400 mb-2">Secure Delivery OTP</p>
+                    <div className="bg-gradient-to-br from-[#F43F5E] to-[#FB923C] px-10 py-4 rounded-[24px] shadow-lg shadow-rose-200 text-5xl font-black text-white tracking-widest inline-block">
+                        {displayOrder.otp}
+                    </div>
+                    <p className="text-xs font-bold text-stone-400 mt-3">Show to rider at delivery</p>
+                </div>
+                
+                {displayOrder.status !== 'DELIVERED' && (
+                <div className="w-full md:w-1/2">
+                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest text-stone-400 mb-2">
+                        <span>Packing Progress</span>
+                        <span>{packedItemsCount} / {totalItems} Packed</span>
+                    </div>
+                    <div className="w-full h-4 bg-stone-100 rounded-full overflow-hidden border border-stone-200 shadow-inner">
+                        <motion.div 
+                            initial={{ width: 0 }} 
+                            animate={{ width: `${progressPercentage}%` }} 
+                            transition={{ duration: 0.5 }}
+                            className={`h-full rounded-full ${progressPercentage === 100 ? 'bg-emerald-500' : 'bg-gradient-to-r from-[#F43F5E] to-[#FB923C]'}`} 
+                        />
+                    </div>
+                </div>
+                )}
+            </div>
+
+            <div className="p-8 sm:p-12 bg-stone-50/50 flex-1">
+                <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-6">Order Summary</p>
+                <div className="space-y-3 mb-8">
+                    {displayOrder.items?.map(item => (
+                        <div key={item.id} className={`flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm border transition-colors ${item.isPacked ? 'border-emerald-100' : 'border-stone-100'}`}>
+                            <div className="flex items-center gap-4">
+                                {item.isPacked ? (
+                                    <CheckCircle size={20} className="text-emerald-500 flex-shrink-0" strokeWidth={2.5} />
+                                ) : (
+                                    <div className="w-5 h-5 rounded-full border-[3px] border-stone-200 flex-shrink-0" />
+                                )}
+                                <div>
+                                    <p className={`font-black text-lg leading-tight ${item.isPacked ? 'text-emerald-700' : 'text-[#1C1917]'}`}>
+                                        {item.product?.name || 'Item'}
+                                    </p>
+                                    <p className="text-xs font-bold text-stone-400">{item.quantity} {item.product?.unit}</p>
+                                </div>
+                            </div>
+                            <span className="font-black text-[#1C1917] text-lg">₹{item.price}</span>
+                        </div>
+                    ))}
+                </div>
+                <div className="flex justify-between items-end border-t-2 border-stone-200 pt-6">
+                    <span className="text-stone-400 font-black uppercase tracking-[0.2em] text-sm">Total Paid</span>
+                    <span className="text-4xl font-black text-[#1C1917]">₹{displayOrder.totalAmount}</span>
+                </div>
+            </div>
+
+            <div className="p-8 sm:p-12 bg-white">
+                <button onClick={() => setOrderComplete(null)} className="w-full btn-dark py-6 text-2xl rounded-[32px]">Return to Shop</button>
+            </div>
         </div>
-        <button onClick={() => setOrderComplete(null)} className="btn-premium text-2xl px-16 py-7">Back to Mart</button>
       </div>
     );
   }
