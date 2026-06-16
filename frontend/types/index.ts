@@ -24,6 +24,7 @@ export interface OrderItem {
   product: Product;
   quantity: number;
   price: number;
+  isPacked?: boolean;
 }
 
 export interface Order {

@@ -148,3 +148,33 @@ export const completeOrder = async (req: AuthRequest, res: Response) => {
     res.status(500).json({ message: 'Failed to complete order', error: error.message });
   }
 };
+
+export const toggleItemPacked = async (req: AuthRequest, res: Response) => {
+  const { orderId, itemId } = req.params;
+  const { isPacked } = req.body;
+
+  try {
+    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    const updatedItem = await prisma.orderItem.update({
+      where: { id: itemId },
+      data: { isPacked },
+      include: { product: true }
+    });
+
+    // Notify the specific customer that an item's packing status changed
+    if (order.deviceTrackingId) {
+      io.to(`user_${order.deviceTrackingId}`).emit('item_packed_status', {
+        orderId,
+        itemId,
+        isPacked
+      });
+    }
+
+    res.json(updatedItem);
+  } catch (error: any) {
+    console.error('Toggle Item Packed Failed:', error.message);
+    res.status(500).json({ message: 'Failed to update item status', error: error.message });
+  }
+};

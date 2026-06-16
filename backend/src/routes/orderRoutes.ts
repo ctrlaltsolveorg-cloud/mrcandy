@@ -4,6 +4,7 @@ import {
   getOrders,
   acceptOrder,
   completeOrder,
+  toggleItemPacked,
 } from '../controllers/orderController';
 import { authenticate, authorize } from '../middleware/authMiddleware';
 import { Role } from '@prisma/client';
@@ -22,5 +23,6 @@ router.post('/', (req, res, next) => {
 router.get('/', getOrders);
 router.post('/:id/accept', acceptOrder);
 router.post('/:id/complete', completeOrder);
+router.put('/:orderId/items/:itemId/pack', toggleItemPacked);
 
 export default router;

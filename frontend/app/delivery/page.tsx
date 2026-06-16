@@ -70,6 +70,26 @@ export default function DeliveryPanel() {
     } catch (error) { toast.error('Incorrect OTP!'); }
   };
 
+  const toggleItemPacked = async (orderId: string, itemId: string, currentStatus: boolean) => {
+    try {
+      await api.put(`/orders/${orderId}/items/${itemId}/pack`, { isPacked: !currentStatus });
+      // Update local state for immediate feedback
+      setOrders(orders.map(order => {
+        if (order.id === orderId) {
+          return {
+            ...order,
+            items: order.items.map(item => 
+              item.id === itemId ? { ...item, isPacked: !currentStatus } : item
+            )
+          };
+        }
+        return order;
+      }));
+    } catch (error) {
+      toast.error('Failed to update item status');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#FFFBF7] p-6 sm:p-10 text-[#1C1917]">
       <header className="max-w-4xl mx-auto mb-12 flex justify-between items-center bg-white p-6 rounded-[32px] shadow-xl shadow-orange-100/30 border-2 border-white">
@@ -151,10 +171,44 @@ export default function DeliveryPanel() {
                       <div className="flex-1 min-w-0"><p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">Contact</p><p className="text-xl font-black text-[#1C1917] truncate leading-none">{order.customerPhone || 'N/A'}</p></div>
                     </div>
                   </div>
+                  
+                  {/* Packing Checklist */}
                   {order.status === 'ACCEPTED' && (
-                    <button onClick={() => setShowOtpModal(order.id)} className="w-full btn-dark py-6 text-xl rounded-[32px] shadow-stone-300 flex items-center justify-center group/btn relative overflow-hidden">
-                        <span className="relative z-10 flex items-center gap-3">VERIFY DELIVERY <Lock size={20} strokeWidth={3} /></span>
-                        <div className="absolute inset-0 bg-[#F43F5E] translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
+                    <div className="mb-8">
+                      <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-3">Packing Checklist</p>
+                      <div className="bg-[#FFFBF7] p-4 rounded-[24px] border-2 border-orange-50 shadow-inner space-y-2">
+                        {order.items.map(item => (
+                          <div 
+                            key={item.id} 
+                            onClick={() => toggleItemPacked(order.id, item.id, !!item.isPacked)}
+                            className="flex items-center justify-between p-3 bg-white rounded-[16px] shadow-sm border border-stone-100 cursor-pointer hover:border-emerald-200 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 transition-colors ${item.isPacked ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-stone-300 bg-stone-50'}`}>
+                                {item.isPacked && <Check size={14} strokeWidth={4} />}
+                              </div>
+                              <span className={`font-bold text-sm ${item.isPacked ? 'text-stone-400 line-through' : 'text-[#1C1917]'}`}>{item.product?.name}</span>
+                            </div>
+                            <span className="font-black text-stone-600 text-xs px-2 py-1 bg-stone-100 rounded-lg">{item.quantity} {item.product?.unit}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {order.status === 'ACCEPTED' && (
+                    <button 
+                      onClick={() => setShowOtpModal(order.id)} 
+                      disabled={order.items.some(item => !item.isPacked)}
+                      className={`w-full py-6 text-xl rounded-[32px] shadow-stone-300 flex items-center justify-center group/btn relative overflow-hidden transition-all ${order.items.some(item => !item.isPacked) ? 'bg-stone-100 text-stone-400 cursor-not-allowed border-2 border-stone-200 shadow-none' : 'btn-dark'}`}
+                    >
+                        <span className="relative z-10 flex items-center gap-3">
+                            {order.items.some(item => !item.isPacked) ? 'PACK ALL ITEMS FIRST' : 'VERIFY DELIVERY'} 
+                            <Lock size={20} strokeWidth={3} />
+                        </span>
+                        {!order.items.some(item => !item.isPacked) && (
+                            <div className="absolute inset-0 bg-[#F43F5E] translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300" />
+                        )}
                     </button>
                   )}
                 </motion.div>

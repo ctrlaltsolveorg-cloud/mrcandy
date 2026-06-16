@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import socket from '@/lib/socket';
 import { Product, Order } from '@/types';
 import { ShoppingBag, Package, Plus, Minus, Trash2, CheckCircle, Home, ArrowLeft, X, User, Phone, MapPin, Hash, Sparkles, Search, ArrowRight, Receipt, Menu, Tag, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -43,14 +44,36 @@ export default function UserShop() {
       
       // Fetch initial orders
       fetchMyOrders(id);
+
+      // Socket connection for real-time updates
+      socket.connect();
+      socket.emit('join_user_room', id);
+
+      socket.on('item_packed_status', (data: { orderId: string, itemId: string, isPacked: boolean }) => {
+        setMyOrders(currentOrders => currentOrders.map(order => {
+          if (order.id === data.orderId) {
+            return {
+              ...order,
+              items: order.items.map(item => 
+                item.id === data.itemId ? { ...item, isPacked: data.isPacked } : item
+              )
+            };
+          }
+          return order;
+        }));
+      });
       
-      // Poll for order updates every 5 seconds if My Orders is open
+      // Poll for order updates every 5 seconds if My Orders is open (fallback)
       const interval = setInterval(() => {
           if (showMyOrders || orderComplete) {
               fetchMyOrders(id);
           }
       }, 5000);
-      return () => clearInterval(interval);
+      
+      return () => {
+        clearInterval(interval);
+        socket.off('item_packed_status');
+      };
   }, [showMyOrders, orderComplete]);
 
   const fetchMyOrders = async (id: string) => {
@@ -374,8 +397,13 @@ export default function UserShop() {
                                   <div className="flex-1 space-y-2 bg-stone-50 p-5 rounded-[24px] border border-stone-100">
                                       <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Items</p>
                                       {order.items.map(item => (
-                                          <div key={item.id} className="flex justify-between text-sm font-bold text-[#1C1917]">
-                                              <span>{item.quantity}x {item.product?.name || 'Item'}</span>
+                                          <div key={item.id} className={`flex justify-between items-center text-sm font-bold transition-colors ${item.isPacked ? 'text-stone-400' : 'text-[#1C1917]'}`}>
+                                              <span className="flex items-center gap-2">
+                                                  {item.isPacked ? <CheckCircle size={14} className="text-emerald-500" /> : <div className="w-3.5 h-3.5 rounded-full border-2 border-stone-300" />}
+                                                  <span className={item.isPacked ? 'line-through decoration-stone-300' : ''}>
+                                                      {item.quantity}x {item.product?.name || 'Item'}
+                                                  </span>
+                                              </span>
                                               <span>₹{item.price}</span>
                                           </div>
                                       ))}
