@@ -47,13 +47,39 @@ export default function DeliveryPanel() {
                   lng: position.coords.longitude
               });
           }, (error) => {
-              console.warn("GPS Warning (Location unavailable):", error.message);
+              console.warn("GPS Warning:", error.message);
               setGpsErrors(prev => ({ ...prev, [id]: true }));
-              toast.error("Live tracking paused. Please allow location access.");
+              
+              if (error.code === 1) {
+                  toast.error("Permission Denied: Please allow location access in browser settings.");
+              } else if (error.code === 2) {
+                  toast.error("OS Error: Your Mac/Device cannot determine its location right now.");
+              } else {
+                  toast.error("GPS Timeout: Signal is too weak.");
+              }
           }, { enableHighAccuracy: false, timeout: 10000 }); 
       } else {
           toast.error("Geolocation is not supported by your browser.");
       }
+  };
+
+  const simulateGps = (id: string, trackingId: string) => {
+      setGpsErrors(prev => ({ ...prev, [id]: false }));
+      toast.success("Simulating GPS for testing...");
+      // Send a fake location (e.g., Connaught Place, New Delhi)
+      let lat = 28.6304;
+      let lng = 77.2177;
+      
+      setInterval(() => {
+          // Slowly move the location
+          lat += 0.0001;
+          lng += 0.0001;
+          socket.emit('delivery_location_update', {
+              trackingId: trackingId,
+              lat: lat,
+              lng: lng
+          });
+      }, 3000);
   };
 
   const markOutForDelivery = async (id: string) => {
@@ -209,12 +235,20 @@ export default function DeliveryPanel() {
                         
                         {/* GPS Retry Button if Location Fails */}
                         {gpsErrors[order.id] && (
-                            <button 
-                                onClick={() => startGpsTracking(order.id, order.deviceTrackingId || '')} 
-                                className="w-full py-3 bg-amber-50 text-amber-600 border border-amber-200 rounded-[20px] text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-100 transition-colors"
-                            >
-                                <MapPinOff size={14} /> Retry Location Access
-                            </button>
+                            <div className="flex gap-3">
+                                <button 
+                                    onClick={() => startGpsTracking(order.id, order.deviceTrackingId || '')} 
+                                    className="flex-1 py-3 bg-amber-50 text-amber-600 border border-amber-200 rounded-[20px] text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-amber-100 transition-colors"
+                                >
+                                    <MapPinOff size={14} /> Retry GPS
+                                </button>
+                                <button 
+                                    onClick={() => simulateGps(order.id, order.deviceTrackingId || '')} 
+                                    className="flex-1 py-3 bg-indigo-50 text-indigo-600 border border-indigo-200 rounded-[20px] text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 hover:bg-indigo-100 transition-colors"
+                                >
+                                    Simulate (Test)
+                                </button>
+                            </div>
                         )}
                     </div>
                   )}
