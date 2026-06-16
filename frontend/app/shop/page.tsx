@@ -341,7 +341,7 @@ export default function UserShop() {
               <div className="bg-gradient-to-r from-orange-50 to-rose-50 rounded-[32px] p-6 sm:p-8 border-2 border-white shadow-inner flex flex-col gap-6">
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
                     <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-md text-[#F43F5E] flex-shrink-0">
+                    <div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center shadow-md text-emerald-500 flex-shrink-0">
                         <CheckCircle size={32} strokeWidth={2.5} />
                     </div>
                     <div>
