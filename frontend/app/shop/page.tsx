@@ -456,36 +456,36 @@ export default function UserShop() {
       {showCart && (
         <>
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCart(false)} className="fixed inset-0 z-[60] bg-[#1C1917]/70 backdrop-blur-md" />
-            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 35, stiffness: 200 }} className="fixed inset-y-0 right-0 z-[70] w-full max-w-xl bg-[#FFFBF7] shadow-2xl flex flex-col rounded-l-[70px] border-l-[8px] border-white">
-                <div className="p-12 border-b border-orange-100/50 flex justify-between items-center bg-white rounded-tl-[62px]">
-                    <div><h2 className="text-5xl font-black text-[#1C1917] tracking-tighter mb-2">My Bag</h2><p className="text-stone-400 font-black text-sm uppercase tracking-[0.3em] ml-1">{cart.length} Handpicked items</p></div>
-                    <button onClick={() => setShowCart(false)} className="p-5 bg-stone-50 text-stone-900 rounded-[30px] hover:bg-[#F43F5E] hover:text-white transition-all shadow-inner"><ArrowLeft size={32} strokeWidth={3} /></button>
+            <motion.div initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }} transition={{ type: 'spring', damping: 35, stiffness: 200 }} className="fixed inset-y-0 right-0 z-[70] w-full max-w-md bg-[#FFFBF7] shadow-2xl flex flex-col rounded-l-[40px] border-l-[6px] border-white">
+                <div className="p-8 border-b border-orange-100/50 flex justify-between items-center bg-white rounded-tl-[34px]">
+                    <div><h2 className="text-3xl font-black text-[#1C1917] tracking-tighter mb-1">My Bag</h2><p className="text-stone-400 font-black text-xs uppercase tracking-[0.3em] ml-1">{cart.length} Handpicked items</p></div>
+                    <button onClick={() => setShowCart(false)} className="p-3 bg-stone-50 text-stone-900 rounded-[20px] hover:bg-[#F43F5E] hover:text-white transition-all shadow-inner"><ArrowLeft size={24} strokeWidth={3} /></button>
                 </div>
-                <div className="flex-1 overflow-y-auto p-10 space-y-8">
+                <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {cart.length === 0 ? (
-                    <div className="text-center py-32"><div className="w-40 h-40 bg-white rounded-[50px] flex items-center justify-center mx-auto mb-10 shadow-2xl shadow-orange-100/30 border-4 border-white"><ShoppingBag size={80} strokeWidth={1} className="text-stone-200" /></div><p className="text-3xl font-black text-stone-200 uppercase tracking-[0.3em]">Empty Bag</p></div>
+                    <div className="text-center py-20"><div className="w-24 h-24 bg-white rounded-[32px] flex items-center justify-center mx-auto mb-6 shadow-xl shadow-orange-100/30 border-2 border-white"><ShoppingBag size={48} strokeWidth={1.5} className="text-stone-200" /></div><p className="text-xl font-black text-stone-300 uppercase tracking-[0.3em]">Empty Bag</p></div>
                 ) : (
                     cart.map((item) => (
-                    <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} key={item.product.id} className="flex items-center gap-8 bg-white p-8 rounded-[45px] border-4 border-white shadow-xl shadow-stone-200/40 relative group">
-                        <div className="w-28 h-28 bg-[#FFFBF7] rounded-[32px] flex-shrink-0 flex items-center justify-center overflow-hidden shadow-inner border-2 border-orange-50">{renderPhoto(item.product.photoUrl)}</div>
-                        <div className="flex-1"><h4 className="font-black text-[#1C1917] text-2xl leading-none mb-2 tracking-tight">{item.product.name}</h4><p className="text-[#F43F5E] font-black text-xl tracking-tight">₹{item.product.price} <span className="text-xs text-stone-300 uppercase">/ {item.product.unit}</span></p></div>
-                        <div className="flex flex-col items-center gap-4">
-                            <div className="flex items-center bg-stone-50 rounded-[22px] border-2 border-stone-100 p-2 shadow-inner">
-                                <button onClick={() => updateCartQty(item.product.id, -1)} className="p-3 text-stone-400 hover:text-[#F43F5E] transition-colors"><Minus size={18} strokeWidth={4}/></button>
-                                <span className="w-14 text-center font-black text-lg text-[#1C1917]">{item.quantity}</span>
-                                <button onClick={() => updateCartQty(item.product.id, 1)} className="p-3 text-stone-400 hover:text-[#F43F5E] transition-colors"><Plus size={18} strokeWidth={4}/></button>
+                    <motion.div layout initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} key={item.product.id} className="flex items-center gap-4 bg-white p-4 rounded-[32px] border-2 border-white shadow-md shadow-stone-200/40 relative group">
+                        <div className="w-20 h-20 bg-[#FFFBF7] rounded-[24px] flex-shrink-0 flex items-center justify-center overflow-hidden shadow-inner border-2 border-orange-50">{renderPhoto(item.product.photoUrl)}</div>
+                        <div className="flex-1"><h4 className="font-black text-[#1C1917] text-lg leading-tight mb-1 tracking-tight">{item.product.name}</h4><p className="text-[#F43F5E] font-black text-base tracking-tight">₹{item.product.price} <span className="text-[10px] text-stone-300 uppercase">/ {item.product.unit}</span></p></div>
+                        <div className="flex flex-col items-center gap-2">
+                            <div className="flex items-center bg-stone-50 rounded-[16px] border-2 border-stone-100 p-1 shadow-inner">
+                                <button onClick={() => updateCartQty(item.product.id, -1)} className="p-2 text-stone-400 hover:text-[#F43F5E] transition-colors"><Minus size={14} strokeWidth={4}/></button>
+                                <span className="w-8 text-center font-black text-sm text-[#1C1917]">{item.quantity}</span>
+                                <button onClick={() => updateCartQty(item.product.id, 1)} className="p-2 text-stone-400 hover:text-[#F43F5E] transition-colors"><Plus size={14} strokeWidth={4}/></button>
                             </div>
-                            <button onClick={() => removeFromCart(item.product.id)} className="p-3 text-stone-200 hover:text-rose-500 transition-colors"><Trash2 size={24} strokeWidth={2.5} /></button>
+                            <button onClick={() => removeFromCart(item.product.id)} className="p-2 text-stone-300 hover:text-rose-500 transition-colors"><Trash2 size={18} strokeWidth={2.5} /></button>
                         </div>
                     </motion.div>
                     ))
                 )}
                 </div>
                 {cart.length > 0 && (
-                <div className="p-12 bg-white border-t-[6px] border-stone-50 rounded-t-[80px] shadow-[0_-30px_60px_-20px_rgba(0,0,0,0.1)]">
-                    <div className="flex justify-between items-end mb-10 px-2"><span className="text-stone-400 font-black uppercase tracking-[0.3em] text-sm">Amount Payable</span><span className="text-6xl font-black text-[#1C1917] tracking-tighter">₹{total}</span></div>
-                    <button onClick={() => setShowCheckoutForm(true)} className="w-full btn-premium py-8 text-3xl rounded-[40px] shadow-rose-200">Checkout <ArrowRight size={32} strokeWidth={4} /></button>
-                    <p className="text-center text-stone-300 font-black mt-8 text-xs uppercase tracking-[0.4em]">Zero Platform Fees</p>
+                <div className="p-8 bg-white border-t-[4px] border-stone-50 rounded-t-[50px] shadow-[0_-20px_40px_-10px_rgba(0,0,0,0.1)]">
+                    <div className="flex justify-between items-end mb-6 px-2"><span className="text-stone-400 font-black uppercase tracking-[0.3em] text-xs">Amount Payable</span><span className="text-4xl font-black text-[#1C1917] tracking-tighter">₹{total}</span></div>
+                    <button onClick={() => setShowCheckoutForm(true)} className="w-full btn-premium py-5 text-xl rounded-[28px] shadow-rose-200">Checkout <ArrowRight size={24} strokeWidth={4} /></button>
+                    <p className="text-center text-stone-300 font-black mt-4 text-[10px] uppercase tracking-[0.4em]">Zero Platform Fees</p>
                 </div>
                 )}
             </motion.div>
@@ -497,18 +497,18 @@ export default function UserShop() {
         {showCheckoutForm && (
           <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCheckoutForm(false)} className="absolute inset-0 bg-[#1C1917]/90 backdrop-blur-2xl" />
-            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30 }} className="relative bg-white w-full max-w-2xl rounded-t-[70px] sm:rounded-[70px] p-10 sm:p-16 overflow-hidden shadow-2xl border-[8px] border-stone-50">
-              <div className="flex justify-between items-center mb-12">
-                <div><h2 className="text-5xl font-black text-[#1C1917] tracking-tighter">Details</h2><p className="text-[#F43F5E] font-black uppercase text-sm tracking-[0.3em] ml-1">Delivery Destination</p></div>
-                <button onClick={() => setShowCheckoutForm(false)} className="p-5 bg-stone-50 text-stone-900 rounded-[30px] hover:bg-black hover:text-white shadow-inner transition-all"><X size={32} strokeWidth={4}/></button>
+            <motion.div initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }} transition={{ type: 'spring', damping: 30 }} className="relative bg-white w-full max-w-lg rounded-t-[40px] sm:rounded-[40px] p-6 sm:p-10 overflow-hidden shadow-2xl border-4 border-stone-50">
+              <div className="flex justify-between items-center mb-8">
+                <div><h2 className="text-3xl font-black text-[#1C1917] tracking-tighter">Details</h2><p className="text-[#F43F5E] font-black uppercase text-[10px] tracking-[0.2em] ml-1">Delivery Destination</p></div>
+                <button onClick={() => setShowCheckoutForm(false)} className="p-3 bg-stone-50 text-stone-900 rounded-[20px] hover:bg-black hover:text-white shadow-inner transition-all"><X size={24} strokeWidth={3}/></button>
               </div>
-              <div className="space-y-6 mb-12">
-                <div className="relative"><User className="absolute left-7 top-1/2 -translate-y-1/2 text-stone-300" size={24} /><input placeholder="Full Name" value={customerDetails.name} onChange={e => setCustomerDetails({...customerDetails, name: e.target.value})} className="input-premium pl-20" /></div>
-                <div className="relative"><Phone className="absolute left-7 top-1/2 -translate-y-1/2 text-stone-300" size={24} /><input placeholder="Mobile Number" value={customerDetails.phone} onChange={e => setCustomerDetails({...customerDetails, phone: e.target.value})} className="input-premium pl-20" /></div>
-                <div className="relative"><MapPin className="absolute left-7 top-10 -translate-y-1/2 text-stone-300" size={24} /><textarea placeholder="Full Address" rows={3} value={customerDetails.address} onChange={e => setCustomerDetails({...customerDetails, address: e.target.value})} className="input-premium pl-20 pt-8 resize-none" /></div>
-                <div className="relative"><Hash className="absolute left-7 top-1/2 -translate-y-1/2 text-stone-300" size={24} /><input placeholder="Pincode" value={customerDetails.pincode} onChange={e => setCustomerDetails({...customerDetails, pincode: e.target.value})} className="input-premium pl-20" /></div>
+              <div className="space-y-4 mb-8">
+                <div className="relative"><User className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300" size={20} /><input placeholder="Full Name" value={customerDetails.name} onChange={e => setCustomerDetails({...customerDetails, name: e.target.value})} className="input-premium pl-14 py-4 text-base rounded-[20px]" /></div>
+                <div className="relative"><Phone className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300" size={20} /><input placeholder="Mobile Number" value={customerDetails.phone} onChange={e => setCustomerDetails({...customerDetails, phone: e.target.value})} className="input-premium pl-14 py-4 text-base rounded-[20px]" /></div>
+                <div className="relative"><MapPin className="absolute left-5 top-8 -translate-y-1/2 text-stone-300" size={20} /><textarea placeholder="Full Address" rows={3} value={customerDetails.address} onChange={e => setCustomerDetails({...customerDetails, address: e.target.value})} className="input-premium pl-14 pt-6 text-base rounded-[20px] resize-none" /></div>
+                <div className="relative"><Hash className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-300" size={20} /><input placeholder="Pincode" value={customerDetails.pincode} onChange={e => setCustomerDetails({...customerDetails, pincode: e.target.value})} className="input-premium pl-14 py-4 text-base rounded-[20px]" /></div>
               </div>
-              <button onClick={checkout} className="w-full btn-premium py-8 text-3xl rounded-[40px] shadow-emerald-100 from-emerald-500 to-teal-600 border-none">Place Order (COD)</button>
+              <button onClick={checkout} className="w-full btn-premium py-5 text-xl rounded-[24px] shadow-emerald-100 from-emerald-500 to-teal-600 border-none">Place Order (COD)</button>
             </motion.div>
           </div>
         )}
