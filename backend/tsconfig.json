@@ -8,6 +8,7 @@
     // Environment Settings
     // See also https://aka.ms/tsconfig/module
     "rootDir": "src",
+    "outDir": "dist",
     "module": "CommonJS",
     "moduleResolution": "node",
     "ignoreDeprecations": "6.0",
@@ -18,5 +19,7 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-  }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "prisma/**/*", "dist", "**/*.spec.ts"]
 }

@@ -8,7 +8,6 @@ import {
   toggleItemPacked,
 } from '../controllers/orderController';
 import { authenticate, authorize } from '../middleware/authMiddleware';
-import { Role } from '@prisma/client';
 
 const router = Router();
 

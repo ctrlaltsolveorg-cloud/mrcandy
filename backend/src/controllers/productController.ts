@@ -38,7 +38,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 
   try {
     const product = await prisma.product.update({
-      where: { id },
+      where: { id: id as string },
       data: {
         name,
         photoUrl,
@@ -60,13 +60,13 @@ export const addWholesaleStock = async (req: Request, res: Response) => {
   const { multiplier = 1 } = req.body; // Usually +1 wholesale unit
 
   try {
-    const product = await prisma.product.findUnique({ where: { id } });
+    const product = await prisma.product.findUnique({ where: { id: id as string } });
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
     const updatedProduct = await prisma.product.update({
-      where: { id },
+      where: { id: id as string },
       data: {
         retailStock: {
           increment: product.wholesaleUnitQty * multiplier,
@@ -85,7 +85,7 @@ export const deductWholesaleStock = async (req: Request, res: Response) => {
   const { multiplier = 1 } = req.body;
 
   try {
-    const product = await prisma.product.findUnique({ where: { id } });
+    const product = await prisma.product.findUnique({ where: { id: id as string } });
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
@@ -98,7 +98,7 @@ export const deductWholesaleStock = async (req: Request, res: Response) => {
     }
 
     const updatedProduct = await prisma.product.update({
-      where: { id },
+      where: { id: id as string },
       data: {
         retailStock: {
           decrement: deductionAmount,

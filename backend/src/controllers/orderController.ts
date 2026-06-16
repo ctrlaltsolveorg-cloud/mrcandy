@@ -101,13 +101,13 @@ export const acceptOrder = async (req: AuthRequest, res: Response) => {
         return res.status(400).json({ message: 'No delivery boy found in DB.' });
     }
 
-    const order = await prisma.order.findUnique({ where: { id } });
+    const order = await prisma.order.findUnique({ where: { id: id as string } });
     if (!order || order.status !== 'PENDING') {
       return res.status(400).json({ message: 'Order not available' });
     }
 
     const updatedOrder = await prisma.order.update({
-      where: { id },
+      where: { id: id as string },
       data: {
         deliveryBoyId: deliveryBoy.id,
         status: 'ACCEPTED',
@@ -126,7 +126,7 @@ export const markOutForDelivery = async (req: AuthRequest, res: Response) => {
 
   try {
     const updatedOrder = await prisma.order.update({
-      where: { id },
+      where: { id: id as string },
       data: {
         status: 'OUT_FOR_DELIVERY',
       },
@@ -154,7 +154,7 @@ export const completeOrder = async (req: AuthRequest, res: Response) => {
   const { otp } = req.body;
 
   try {
-    const order = await prisma.order.findUnique({ where: { id } });
+    const order = await prisma.order.findUnique({ where: { id: id as string } });
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
@@ -164,7 +164,7 @@ export const completeOrder = async (req: AuthRequest, res: Response) => {
     }
 
     const updatedOrder = await prisma.order.update({
-      where: { id },
+      where: { id: id as string },
       data: {
         status: 'DELIVERED',
       },
@@ -182,11 +182,11 @@ export const toggleItemPacked = async (req: AuthRequest, res: Response) => {
   const { isPacked } = req.body;
 
   try {
-    const order = await prisma.order.findUnique({ where: { id: orderId } });
+    const order = await prisma.order.findUnique({ where: { id: orderId as string } });
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
     const updatedItem = await prisma.orderItem.update({
-      where: { id: itemId },
+      where: { id: itemId as string },
       data: { isPacked },
       include: { product: true }
     });
