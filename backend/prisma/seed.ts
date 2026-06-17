@@ -6,8 +6,16 @@ const prisma = new PrismaClient();
 async function main() {
   const hashedPassword = await bcrypt.hash('1234', 10);
 
+  console.log('Clearing existing data...');
+  // Note: Order might matter due to foreign keys
+  await prisma.orderItem.deleteMany({});
+  await prisma.order.deleteMany({});
+  await prisma.product.deleteMany({});
+  await prisma.user.deleteMany({});
+
+  console.log('Seeding users...');
   // Users
-  const admin = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { phone: '1111' },
     update: {},
     create: {
@@ -18,7 +26,7 @@ async function main() {
     },
   });
 
-  const mother = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { phone: '2222' },
     update: {},
     create: {
@@ -29,7 +37,7 @@ async function main() {
     },
   });
 
-  const delivery = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { phone: '3333' },
     update: {},
     create: {
@@ -40,7 +48,7 @@ async function main() {
     },
   });
 
-  const user = await prisma.user.upsert({
+  await prisma.user.upsert({
     where: { phone: '4444' },
     update: {},
     create: {
@@ -51,12 +59,14 @@ async function main() {
     },
   });
 
+  console.log('Seeding products...');
   // Products
   await prisma.product.createMany({
     data: [
       {
         name: 'Kurkure Masala Munch',
         wholesaleUnitQty: 15, // 1 pack = 15 units
+        unit: 'pcs',
         price: 10,
         retailStock: 30,
         photoUrl: 'https://m.media-amazon.com/images/I/71YyP02n-7L._SL1500_.jpg',
@@ -64,6 +74,7 @@ async function main() {
       {
         name: 'Sugar (Chini)',
         wholesaleUnitQty: 5, // 1 pack = 5 kg
+        unit: 'kg',
         price: 45,
         retailStock: 50,
         photoUrl: 'https://5.imimg.com/data5/ANDROID/Default/2021/6/YI/SD/RX/131584252/product-jpeg-500x500.jpg',
@@ -71,6 +82,7 @@ async function main() {
       {
         name: 'Lays Magic Masala',
         wholesaleUnitQty: 20, // 1 box = 20 units
+        unit: 'pcs',
         price: 20,
         retailStock: 40,
         photoUrl: 'https://m.media-amazon.com/images/I/71K23X15CML._SL1500_.jpg',
@@ -78,7 +90,7 @@ async function main() {
     ],
   });
 
-  console.log('Seed completed!');
+  console.log('Seed completed successfully!');
 }
 
 main()

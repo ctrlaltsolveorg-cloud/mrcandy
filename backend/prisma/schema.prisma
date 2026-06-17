@@ -6,20 +6,32 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
-// SQLite does not support enums, using String instead
-// Role: ADMIN, MOTHER, DELIVERY, CUSTOMER
-// OrderStatus: PENDING, ACCEPTED, DELIVERED, CANCELLED
+// PostgreSQL supports enums natively
+enum Role {
+  ADMIN
+  MOTHER
+  DELIVERY
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  OUT_FOR_DELIVERY
+  DELIVERED
+  CANCELLED
+}
 
 model User {
   id        String   @id @default(uuid())
   phone     String   @unique
   password  String
   name      String?
-  role      String   @default("CUSTOMER")
+  role      Role     @default(CUSTOMER)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]  @relation("CustomerOrders")
@@ -46,7 +58,7 @@ model Order {
   customer      User?       @relation("CustomerOrders", fields: [customerId], references: [id])
   deliveryBoyId String?
   deliveryBoy   User?       @relation("DeliveryBoyOrders", fields: [deliveryBoyId], references: [id])
-  status        String      @default("PENDING")
+  status        OrderStatus @default(PENDING)
   otp           String?
   totalAmount   Float
   
