@@ -23,10 +23,12 @@ app.use('/uploads', express.static('uploads'));
 import authRoutes from './routes/authRoutes';
 import productRoutes from './routes/productRoutes';
 import orderRoutes from './routes/orderRoutes';
+import settingsRoutes from './routes/settingsRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/settings', settingsRoutes);
 
 // Socket.io logic
 io.on('connection', (socket) => {

@@ -10,28 +10,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// PostgreSQL supports enums natively
-enum Role {
-  ADMIN
-  MOTHER
-  DELIVERY
-  CUSTOMER
-}
-
-enum OrderStatus {
-  PENDING
-  ACCEPTED
-  OUT_FOR_DELIVERY
-  DELIVERED
-  CANCELLED
-}
+// SQLite does not support enums, using String instead
+// Role: ADMIN, MOTHER, DELIVERY, CUSTOMER
+// OrderStatus: PENDING, ACCEPTED, OUT_FOR_DELIVERY, DELIVERED, CANCELLED
 
 model User {
   id        String   @id @default(uuid())
   phone     String   @unique
   password  String
   name      String?
-  role      Role     @default(CUSTOMER)
+  role      String   @default("CUSTOMER")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   orders    Order[]  @relation("CustomerOrders")
@@ -42,6 +30,7 @@ model Product {
   id               String      @id @default(uuid())
   name             String
   photoUrl         String?
+  category         String      @default("Snacks & Munchies")
   retailStock      Float       @default(0) // In retail units
   wholesaleUnitQty Float       @default(1) // How many retail units are in one wholesale unit
   unit             String      @default("pcs") // e.g., kg, pcs, doz, pkt, ltr
@@ -58,7 +47,7 @@ model Order {
   customer      User?       @relation("CustomerOrders", fields: [customerId], references: [id])
   deliveryBoyId String?
   deliveryBoy   User?       @relation("DeliveryBoyOrders", fields: [deliveryBoyId], references: [id])
-  status        OrderStatus @default(PENDING)
+  status        String      @default("PENDING")
   otp           String?
   totalAmount   Float
   
@@ -70,6 +59,9 @@ model Order {
   customerPhone String?
   address       String?
   pincode       String?
+
+  deliveryCharges Float @default(0)
+  distance        Float @default(0)
 
   createdAt     DateTime    @default(now())
   updatedAt     DateTime    @updatedAt
@@ -85,4 +77,9 @@ model OrderItem {
   quantity  Float
   price     Float
   isPacked  Boolean @default(false)
+}
+
+model SystemSetting {
+  key   String @id
+  value String
 }

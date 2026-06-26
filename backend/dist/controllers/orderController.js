@@ -7,7 +7,7 @@ exports.toggleItemPacked = exports.completeOrder = exports.markOutForDelivery = 
 const prisma_1 = __importDefault(require("../prisma"));
 const app_1 = require("../app");
 const createOrder = async (req, res) => {
-    const { items, totalAmount, customerName, customerPhone, address, pincode, customerId } = req.body;
+    const { items, totalAmount, customerName, customerPhone, address, pincode, customerId, deliveryCharges, distance } = req.body;
     try {
         const result = await prisma_1.default.$transaction(async (tx) => {
             const otp = Math.floor(1000 + Math.random() * 9000).toString();
@@ -20,6 +20,8 @@ const createOrder = async (req, res) => {
                     customerPhone,
                     address,
                     pincode,
+                    deliveryCharges: Number(deliveryCharges || 0),
+                    distance: Number(distance || 0),
                     status: 'PENDING',
                     otp,
                     items: {
@@ -100,7 +102,15 @@ const acceptOrder = async (req, res) => {
                 deliveryBoyId: deliveryBoy.id,
                 status: 'ACCEPTED',
             },
+            include: {
+                items: { include: { product: true } },
+                customer: true,
+                deliveryBoy: true
+            }
         });
+        if (updatedOrder.deviceTrackingId) {
+            app_1.io.to(`user_${updatedOrder.deviceTrackingId}`).emit('order_status_update', updatedOrder);
+        }
         res.json(updatedOrder);
     }
     catch (error) {
@@ -151,7 +161,15 @@ const completeOrder = async (req, res) => {
             data: {
                 status: 'DELIVERED',
             },
+            include: {
+                items: { include: { product: true } },
+                customer: true,
+                deliveryBoy: true
+            }
         });
+        if (updatedOrder.deviceTrackingId) {
+            app_1.io.to(`user_${updatedOrder.deviceTrackingId}`).emit('order_status_update', updatedOrder);
+        }
         res.json(updatedOrder);
     }
     catch (error) {

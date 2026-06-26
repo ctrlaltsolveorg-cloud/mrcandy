@@ -10,7 +10,7 @@ interface AuthRequest extends Request {
 }
 
 export const createOrder = async (req: AuthRequest, res: Response) => {
-  const { items, totalAmount, customerName, customerPhone, address, pincode, customerId } = req.body;
+  const { items, totalAmount, customerName, customerPhone, address, pincode, customerId, deliveryCharges, distance } = req.body;
   
   try {
     const result = await prisma.$transaction(async (tx) => {
@@ -25,6 +25,8 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
           customerPhone,
           address,
           pincode,
+          deliveryCharges: Number(deliveryCharges || 0),
+          distance: Number(distance || 0),
           status: 'PENDING',
           otp,
           items: {
@@ -112,7 +114,16 @@ export const acceptOrder = async (req: AuthRequest, res: Response) => {
         deliveryBoyId: deliveryBoy.id,
         status: 'ACCEPTED',
       },
+      include: {
+        items: { include: { product: true } },
+        customer: true,
+        deliveryBoy: true
+      }
     });
+
+    if (updatedOrder.deviceTrackingId) {
+      io.to(`user_${updatedOrder.deviceTrackingId}`).emit('order_status_update', updatedOrder);
+    }
 
     res.json(updatedOrder);
   } catch (error: any) {
@@ -168,7 +179,16 @@ export const completeOrder = async (req: AuthRequest, res: Response) => {
       data: {
         status: 'DELIVERED',
       },
+      include: {
+        items: { include: { product: true } },
+        customer: true,
+        deliveryBoy: true
+      }
     });
+
+    if (updatedOrder.deviceTrackingId) {
+      io.to(`user_${updatedOrder.deviceTrackingId}`).emit('order_status_update', updatedOrder);
+    }
 
     res.json(updatedOrder);
   } catch (error: any) {

@@ -3,17 +3,46 @@
 import { useEffect, useState } from 'react';
 import api from '@/lib/api';
 import { Order } from '@/types';
-import { Package, Search, Calendar, User, MapPin, Phone, Hash, ArrowLeft } from 'lucide-react';
+import { Package, Search, Calendar, User, MapPin, Phone, Hash, ArrowLeft, ShieldCheck, Sparkles, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useRouter } from 'next/navigation';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function AdminOrders() {
   const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [searchTerm, setSearchName] = useState('');
+  
+  // Authorization Guards
+  const [authorized, setAuthorized] = useState(false);
+
+  // Dev Switcher
+  const [showDevMenu, setShowDevMenu] = useState(false);
 
   useEffect(() => {
-    fetchOrders();
+    // Enforce Route Authorization
+    const token = localStorage.getItem('token');
+    const userStr = localStorage.getItem('user');
+
+    if (!token || !userStr) {
+      toast.error('Aap logged in nahi hain! Please login karein.');
+      router.push('/login?redirect=/admin/orders');
+      return;
+    }
+
+    try {
+      const user = JSON.parse(userStr);
+      if (user.role !== 'ADMIN') {
+        toast.error('Access Denied! Sirf Admin hi is panel ko access kar sakte hain.');
+        router.push('/');
+        return;
+      }
+      setAuthorized(true);
+      fetchOrders();
+    } catch (e) {
+      toast.error('Session error. Please login again.');
+      router.push('/login');
+    }
   }, []);
 
   const fetchOrders = async () => {
@@ -25,13 +54,31 @@ export default function AdminOrders() {
     }
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    toast.success('Logged out successfully!');
+    router.push('/login');
+  };
+
   const filteredOrders = orders.filter(order => 
     order.customerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     order.customerPhone?.includes(searchTerm)
   );
 
+  if (!authorized) {
+    return (
+      <div className="min-h-screen bg-[#FFFBF7] flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-xs font-bold text-stone-400 uppercase tracking-widest">Checking Authorization...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] p-4 sm:p-8 text-slate-900">
+    <div className="min-h-screen bg-[#F8FAFC] p-4 sm:p-8 text-slate-900 pb-24">
       <div className="max-w-7xl mx-auto">
         <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 bg-white p-4 sm:p-6 rounded-[24px] shadow-sm border border-slate-100">
           <div className="flex items-center gap-4">
@@ -44,14 +91,20 @@ export default function AdminOrders() {
             </div>
           </div>
           
-          <div className="relative w-full md:w-80">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-            <input 
-              placeholder="Search by name or phone..."
-              value={searchTerm}
-              onChange={e => setSearchName(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-[16px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all font-bold text-sm shadow-inner"
-            />
+          <div className="flex items-center gap-3 w-full md:w-auto">
+            <div className="relative w-full md:w-60">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+              <input 
+                placeholder="Search name/phone..."
+                value={searchTerm}
+                onChange={e => setSearchName(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-[16px] outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-400 transition-all font-bold text-xs shadow-inner"
+              />
+            </div>
+            
+            <button onClick={handleLogout} className="bg-rose-50 text-rose-600 px-5 py-2.5 rounded-[16px] font-black text-xs flex items-center justify-center border border-rose-100 hover:bg-rose-600 hover:text-white transition-all shadow-sm shrink-0">
+                <LogOut size={14} className="mr-1.5" /> LOG OUT
+            </button>
           </div>
         </header>
 
@@ -110,14 +163,20 @@ export default function AdminOrders() {
                 {/* Right: Items List */}
                 <div className="p-5 sm:p-6 lg:w-1/4 bg-slate-50/50 flex flex-col border-t lg:border-t-0 lg:border-l border-slate-100">
                     <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">Items Summary</p>
-                    <div className="space-y-2 overflow-y-auto max-h-32 pr-1 custom-scrollbar">
+                    <div className="space-y-2 overflow-y-auto max-h-32 pr-1 custom-scrollbar flex-1">
                         {order.items.map((item, idx) => (
                             <div key={idx} className="flex justify-between items-center bg-white p-2.5 rounded-[12px] border border-slate-100 shadow-sm">
-                                <span className="font-bold text-slate-700 text-xs truncate mr-2">{item.product.name}</span>
+                                <span className="font-bold text-slate-700 text-xs truncate mr-2">{item.product?.name || 'Item'}</span>
                                 <span className="font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded text-[10px]">x{item.quantity}</span>
                             </div>
                         ))}
                     </div>
+                    {order.deliveryCharges !== undefined && order.deliveryCharges > 0 && (
+                        <div className="border-t border-slate-200 mt-3 pt-3 flex justify-between items-center text-[10px] font-black text-indigo-600 uppercase tracking-wider">
+                            <span>Delivery Fee ({order.distance} km)</span>
+                            <span>₹{order.deliveryCharges}</span>
+                        </div>
+                    )}
                 </div>
               </div>
             </div>
@@ -131,6 +190,82 @@ export default function AdminOrders() {
           </div>
         )}
       </div>
+
+      {/* Dev Switcher overlay */}
+      <DevSwitcher activeRole="ADMIN" router={router} showMenu={showDevMenu} setShowMenu={setShowDevMenu} />
+    </div>
+  );
+}
+
+// Dev switcher inline component with session injector
+interface DevSwitcherProps {
+  activeRole: string;
+  router: any;
+  showMenu: boolean;
+  setShowMenu: (val: boolean) => void;
+}
+
+function DevSwitcher({ activeRole, router, showMenu, setShowMenu }: DevSwitcherProps) {
+  const roles = [
+    { id: 'CUSTOMER', label: '🛒 Customer view', path: '/shop' },
+    { id: 'MOTHER', label: '🥛 Mother Panel', path: '/mother' },
+    { id: 'DELIVERY', label: '🛵 Rider Dashboard', path: '/delivery' },
+    { id: 'ADMIN', label: '🛠️ Store Admin', path: '/admin' },
+  ];
+
+  const handleRoleSwitch = (rolePath: string, roleId: string) => {
+    if (roleId === 'CUSTOMER') {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    } else {
+      const mockUser = {
+        id: `mock-${roleId.toLowerCase()}`,
+        name: roleId === 'ADMIN' ? 'Admin Sahab' : roleId === 'MOTHER' ? 'Mummy' : 'Raju Delivery',
+        phone: roleId === 'ADMIN' ? '1111' : roleId === 'MOTHER' ? '2222' : '3333',
+        role: roleId,
+      };
+      localStorage.setItem('token', `mock-${roleId.toLowerCase()}-token`);
+      localStorage.setItem('user', JSON.stringify(mockUser));
+    }
+    router.push(rolePath);
+    setShowMenu(false);
+  };
+
+  return (
+    <div className="fixed bottom-6 right-6 z-[120] flex flex-col items-end">
+      <AnimatePresence>
+        {showMenu && (
+          <motion.div 
+            initial={{ opacity: 0, y: 15, scale: 0.95 }} 
+            animate={{ opacity: 1, y: 0, scale: 1 }} 
+            exit={{ opacity: 0, y: 15, scale: 0.95 }}
+            className="mb-3 bg-[#1C1917] border border-stone-850 text-white rounded-2xl p-3 shadow-2xl w-56 flex flex-col gap-1.5"
+          >
+            <p className="text-[8px] font-black text-stone-500 uppercase tracking-widest mb-1.5 px-2">Dev Console: Switch Role</p>
+            {roles.map(role => (
+              <button
+                key={role.id}
+                onClick={() => handleRoleSwitch(role.path, role.id)}
+                className={`w-full px-3 py-2 rounded-xl text-left text-xs font-bold transition-all flex items-center justify-between ${
+                  activeRole === role.id 
+                    ? 'bg-yellow-400 text-[#1C1917] font-black' 
+                    : 'text-stone-300 hover:bg-stone-800 hover:text-white'
+                }`}
+              >
+                <span>{role.label}</span>
+                {activeRole === role.id && <ShieldCheck size={12} />}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <button 
+        onClick={() => setShowMenu(!showMenu)} 
+        className="flex items-center gap-2 bg-yellow-400 text-[#1C1917] border-2 border-white px-4 py-2.5 rounded-full font-black text-xs tracking-tight shadow-xl hover:bg-yellow-500 hover:scale-105 active:scale-95 transition-all shrink-0 z-20"
+      >
+        <Sparkles size={14} className="animate-pulse" />
+        <span>Dev Switcher</span>
+      </button>
     </div>
   );
 }

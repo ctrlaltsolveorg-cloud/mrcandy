@@ -11,17 +11,18 @@ export const getAllProducts = async (req: Request, res: Response) => {
 };
 
 export const createProduct = async (req: Request, res: Response) => {
-  const { name, wholesaleUnitQty, price, unit } = req.body;
-  const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
+  const { name, wholesaleUnitQty, price, unit, category, photoUrl } = req.body;
+  const finalPhotoUrl = photoUrl || null;
 
   try {
     const product = await prisma.product.create({
       data: {
         name,
-        photoUrl,
+        photoUrl: finalPhotoUrl,
         wholesaleUnitQty: parseFloat(wholesaleUnitQty),
         price: parseFloat(price),
         unit: unit || 'pcs',
+        category: category || 'Snacks & Munchies',
         retailStock: 0,
       },
     });
@@ -33,19 +34,20 @@ export const createProduct = async (req: Request, res: Response) => {
 
 export const updateProduct = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, wholesaleUnitQty, price, retailStock, unit } = req.body;
-  const photoUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+  const { name, wholesaleUnitQty, price, retailStock, unit, category, photoUrl } = req.body;
+  const finalPhotoUrl = photoUrl !== undefined ? photoUrl : undefined;
 
   try {
     const product = await prisma.product.update({
       where: { id: id as string },
       data: {
         name,
-        photoUrl,
+        photoUrl: finalPhotoUrl,
         wholesaleUnitQty: wholesaleUnitQty ? parseFloat(wholesaleUnitQty) : undefined,
         price: price ? parseFloat(price) : undefined,
         unit: unit !== undefined ? unit : undefined,
         retailStock: retailStock !== undefined ? parseFloat(retailStock) : undefined,
+        category: category !== undefined ? category : undefined,
       },
     });
     res.json(product);

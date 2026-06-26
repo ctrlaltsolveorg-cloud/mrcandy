@@ -11,6 +11,7 @@ export interface Product {
   id: string;
   name: string;
   photoUrl: string | null;
+  category: string;
   retailStock: number;
   wholesaleUnitQty: number;
   unit: string;
@@ -43,4 +44,7 @@ export interface Order {
   pincode: string | null;
   items: OrderItem[];
   createdAt: string;
+  updatedAt?: string;
+  deliveryCharges?: number;
+  distance?: number;
 }

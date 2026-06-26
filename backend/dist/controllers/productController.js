@@ -16,16 +16,17 @@ const getAllProducts = async (req, res) => {
 };
 exports.getAllProducts = getAllProducts;
 const createProduct = async (req, res) => {
-    const { name, wholesaleUnitQty, price, unit } = req.body;
-    const photoUrl = req.file ? `/uploads/${req.file.filename}` : null;
+    const { name, wholesaleUnitQty, price, unit, category, photoUrl } = req.body;
+    const finalPhotoUrl = photoUrl || null;
     try {
         const product = await prisma_1.default.product.create({
             data: {
                 name,
-                photoUrl,
+                photoUrl: finalPhotoUrl,
                 wholesaleUnitQty: parseFloat(wholesaleUnitQty),
                 price: parseFloat(price),
                 unit: unit || 'pcs',
+                category: category || 'Snacks & Munchies',
                 retailStock: 0,
             },
         });
@@ -38,18 +39,19 @@ const createProduct = async (req, res) => {
 exports.createProduct = createProduct;
 const updateProduct = async (req, res) => {
     const { id } = req.params;
-    const { name, wholesaleUnitQty, price, retailStock, unit } = req.body;
-    const photoUrl = req.file ? `/uploads/${req.file.filename}` : undefined;
+    const { name, wholesaleUnitQty, price, retailStock, unit, category, photoUrl } = req.body;
+    const finalPhotoUrl = photoUrl !== undefined ? photoUrl : undefined;
     try {
         const product = await prisma_1.default.product.update({
             where: { id: id },
             data: {
                 name,
-                photoUrl,
+                photoUrl: finalPhotoUrl,
                 wholesaleUnitQty: wholesaleUnitQty ? parseFloat(wholesaleUnitQty) : undefined,
                 price: price ? parseFloat(price) : undefined,
                 unit: unit !== undefined ? unit : undefined,
                 retailStock: retailStock !== undefined ? parseFloat(retailStock) : undefined,
+                category: category !== undefined ? category : undefined,
             },
         });
         res.json(product);
